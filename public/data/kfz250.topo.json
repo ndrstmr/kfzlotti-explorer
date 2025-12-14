@@ -1,0 +1,11 @@
+{
+  "type": "Topology",
+  "objects": {
+    "kreise": {
+      "type": "GeometryCollection",
+      "geometries": []
+    }
+  },
+  "arcs": [],
+  "bbox": [5.87, 47.27, 15.04, 55.06]
+}

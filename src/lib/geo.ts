@@ -115,17 +115,18 @@ export async function topoJsonToGeoJson(
     throw new Error(`Object "${objectName}" not found in TopoJSON`);
   }
 
-  const result = topojsonClient.feature(topoJson, topoJson.objects[objectName]);
+  const result = topojsonClient.feature(topoJson, topoJson.objects[objectName]) as unknown;
   
-  // Handle both single feature and feature collection
-  if (result.type === 'FeatureCollection') {
+  // Check if result has 'features' property (FeatureCollection)
+  if (result && typeof result === 'object' && 'features' in result) {
     return result as GeoJSON.FeatureCollection;
-  } else {
-    return {
-      type: 'FeatureCollection',
-      features: [result as GeoJSON.Feature],
-    };
   }
+  
+  // Single feature case - wrap in a collection
+  return {
+    type: 'FeatureCollection',
+    features: [result as GeoJSON.Feature],
+  };
 }
 
 /**
