@@ -1,0 +1,47 @@
+{
+  "name": "KFZlotti: Kürzel rein, Kreis raus!",
+  "short_name": "KFZlotti",
+  "description": "Entdecke deutsche KFZ-Kennzeichen! Gib ein Kürzel ein und finde heraus, welcher Landkreis dahinter steckt.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fffbeb",
+  "theme_color": "#f97316",
+  "orientation": "portrait-primary",
+  "categories": ["education", "kids", "games"],
+  "lang": "de",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Suche starten",
+      "short_name": "Suche",
+      "url": "/",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Quiz spielen",
+      "short_name": "Quiz",
+      "url": "/quiz",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}

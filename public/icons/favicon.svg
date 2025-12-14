@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f97316"/>
+      <stop offset="100%" style="stop-color:#fbbf24"/>
+    </linearGradient>
+  </defs>
+  <!-- License plate shape -->
+  <rect x="5" y="25" width="90" height="50" rx="8" fill="url(#grad)" stroke="#1e293b" stroke-width="3"/>
+  <!-- Letter K -->
+  <text x="25" y="62" font-family="Arial Black, sans-serif" font-size="28" font-weight="bold" fill="white" text-anchor="middle">K</text>
+  <!-- Letter F -->
+  <text x="50" y="62" font-family="Arial Black, sans-serif" font-size="28" font-weight="bold" fill="white" text-anchor="middle">F</text>
+  <!-- Letter Z -->
+  <text x="75" y="62" font-family="Arial Black, sans-serif" font-size="28" font-weight="bold" fill="white" text-anchor="middle">Z</text>
+  <!-- Fun car emoji on top -->
+  <circle cx="50" cy="15" r="12" fill="#14b8a6"/>
+  <text x="50" y="20" font-size="14" text-anchor="middle">🚗</text>
+</svg>
