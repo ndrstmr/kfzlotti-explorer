@@ -228,9 +228,18 @@ const Settings = () => {
             <AlertTriangle className="w-5 h-5" />
             Gefahrenzone
           </h2>
-          <p className="text-sm text-muted-foreground">
-            Diese Aktion kann nicht rückgängig gemacht werden.
-          </p>
+          <div className="bg-destructive/5 rounded-xl p-4 space-y-2">
+            <p className="text-sm font-medium text-destructive">
+              Folgende Daten werden unwiderruflich gelöscht:
+            </p>
+            <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
+              <li>Quiz-Statistiken (Punkte, richtige/falsche Antworten)</li>
+              <li>Fehler-Liste zum Wiederholen</li>
+              <li>Verdiente Badges und Erfolge</li>
+              <li>Suchhistorie und Streak-Fortschritt</li>
+              <li>Anzeigename und alle Einstellungen</li>
+            </ul>
+          </div>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive" className="w-full rounded-xl">
