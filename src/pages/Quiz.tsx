@@ -579,7 +579,10 @@ const Quiz = () => {
                   className="w-full gradient-primary text-primary-foreground py-6 text-lg font-display font-bold rounded-2xl"
                   onClick={() => generateQuestion()}
                 >
-                  Nächste Frage 🚀
+                  {mode === 'errors' && errorCodes.filter(c => !askedCodes.has(c)).length === 0
+                    ? 'Zur Übersicht 📊'
+                    : 'Nächste Frage 🚀'
+                  }
                 </Button>
               </div>
             )}
