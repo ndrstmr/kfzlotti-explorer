@@ -25,7 +25,7 @@ interface PlayerScore {
 
 type BattleMode = 'time' | 'count';
 type BattleType = 'versus' | 'solo' | 'challenge'; // versus = same questions, solo = random questions each, challenge = single player
-type BattlePhase = 'setup' | 'playing' | 'results';
+type BattlePhase = 'setup' | 'playing' | 'handover' | 'results';
 
 interface BattleQuizProps {
   onBack: () => void;
@@ -214,30 +214,37 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
     });
     
     if (currentPlayerIndex < playerNames.length - 1) {
-      // Next player
-      const nextPlayerIndex = currentPlayerIndex + 1;
-      setCurrentPlayerIndex(nextPlayerIndex);
-      setCurrentQuestionIndex(0);
-      setSelectedAnswer(null);
-      setIsCorrect(null);
-      
-      // In solo mode, switch to next player's questions
-      if (battleType === 'solo') {
-        setPlayerScores(prev => {
-          const nextPlayerQuestions = prev[nextPlayerIndex].questions || [];
-          setQuestions(nextPlayerQuestions);
-          return prev;
-        });
+      // Show handover screen for multiplayer modes
+      if (battleType !== 'challenge') {
+        setPhase('handover');
+      } else {
+        // Single player - shouldn't happen but fallback
+        setPhase('results');
       }
-      
-      if (battleMode === 'time') {
-        setTimeRemaining(timeLimit);
-      }
-      setPlayerStartTime(Date.now());
     } else {
       // All players done
       setPhase('results');
     }
+  };
+
+  const startNextPlayer = () => {
+    const nextPlayerIndex = currentPlayerIndex + 1;
+    setCurrentPlayerIndex(nextPlayerIndex);
+    setCurrentQuestionIndex(0);
+    setSelectedAnswer(null);
+    setIsCorrect(null);
+    
+    // In solo mode, switch to next player's questions
+    if (battleType === 'solo') {
+      const nextPlayerQuestions = playerScores[nextPlayerIndex].questions || [];
+      setQuestions(nextPlayerQuestions);
+    }
+    
+    if (battleMode === 'time') {
+      setTimeRemaining(timeLimit);
+    }
+    setPlayerStartTime(Date.now());
+    setPhase('playing');
   };
 
   const handleAnswer = (answer: string) => {
@@ -613,6 +620,61 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
             })}
           </div>
         </main>
+      </div>
+    );
+  }
+
+  // Handover Phase - transition between players
+  if (phase === 'handover') {
+    const nextPlayerIndex = currentPlayerIndex + 1;
+    const nextPlayer = playerNames[nextPlayerIndex];
+    const currentPlayer = playerScores[currentPlayerIndex];
+    
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="w-full max-w-lg text-center space-y-8">
+          {/* Current player done */}
+          <div className="bg-card rounded-3xl p-8 shadow-card space-y-4">
+            <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+              <Check className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-xl font-display font-bold">
+              {currentPlayer.name} ist fertig!
+            </h2>
+            <p className="text-muted-foreground">
+              Ergebnis wird am Ende angezeigt
+            </p>
+          </div>
+
+          {/* Next player */}
+          <div className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-3xl p-8 shadow-lg text-white space-y-6">
+            <div className="space-y-2">
+              <p className="text-white/80 text-sm">Nächster Spieler</p>
+              <h1 className="text-3xl font-display font-bold">{nextPlayer}</h1>
+            </div>
+            
+            <div className="flex items-center justify-center gap-4 text-sm">
+              <div className="bg-white/20 rounded-full px-4 py-2">
+                {battleMode === 'time' ? `${timeLimit} Sekunden` : `${questionCount} Fragen`}
+              </div>
+              <div className="bg-white/20 rounded-full px-4 py-2">
+                Spieler {nextPlayerIndex + 1} von {playerNames.length}
+              </div>
+            </div>
+
+            <p className="text-white/60 text-sm">
+              Gib das Gerät an {nextPlayer} weiter
+            </p>
+
+            <Button
+              onClick={startNextPlayer}
+              className="w-full py-6 text-lg font-display font-bold rounded-2xl bg-white text-purple-600 hover:bg-white/90"
+            >
+              <Play className="w-5 h-5 mr-2" />
+              {nextPlayer} startet!
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
