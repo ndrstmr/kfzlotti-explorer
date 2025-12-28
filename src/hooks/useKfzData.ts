@@ -11,6 +11,65 @@ import { getCachedData, setCachedData, CACHE_KEYS } from '@/lib/storage';
 // This is a minimal subset - the full data is loaded from public/data
 import { FALLBACK_INDEX } from '@/data/fallback-index';
 
+// Raw district structure from index.json
+interface RawDistrict {
+  name: string;
+  codes: string[];
+  state: string;
+  center: [number, number];
+  ars?: string;
+}
+
+interface RawIndexData {
+  version: string;
+  source: string;
+  license: string;
+  districts: RawDistrict[];
+}
+
+/**
+ * Transform the raw districts array into the KfzIndex format
+ * that the search functions expect
+ */
+function transformToKfzIndex(raw: RawIndexData): KfzIndex {
+  const codeToIds: Record<string, string[]> = {};
+  const features: Record<string, {
+    name: string;
+    ars: string;
+    kfzCodes: string[];
+    center: [number, number];
+  }> = {};
+
+  raw.districts.forEach((district, index) => {
+    const id = `district_${index}`;
+    
+    // Create feature entry
+    features[id] = {
+      name: district.name,
+      ars: district.ars || district.state, // Use state code as fallback for ARS
+      kfzCodes: district.codes,
+      center: district.center,
+    };
+
+    // Map each code to this feature ID
+    district.codes.forEach(code => {
+      const normalized = code.toUpperCase();
+      if (!codeToIds[normalized]) {
+        codeToIds[normalized] = [];
+      }
+      codeToIds[normalized].push(id);
+    });
+  });
+
+  return {
+    version: 1,
+    generated: raw.version,
+    source: raw.source,
+    codeToIds,
+    features,
+  };
+}
+
 interface DataState {
   index: KfzIndex | null;
   topoJson: KfzTopoJSON | null;
@@ -44,7 +103,9 @@ export function useKfzData() {
         try {
           const indexResponse = await fetch('/data/index.json');
           if (indexResponse.ok) {
-            index = await indexResponse.json();
+            const rawData: RawIndexData = await indexResponse.json();
+            // Transform the raw districts into the expected index format
+            index = transformToKfzIndex(rawData);
             await setCachedData(CACHE_KEYS.INDEX, index);
           }
         } catch (e) {
