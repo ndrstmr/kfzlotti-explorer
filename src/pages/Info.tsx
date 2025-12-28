@@ -178,6 +178,9 @@ const Info = () => {
               🤖 <strong>Disclaimer:</strong> Diese App wurde mit Unterstützung von künstlicher Intelligenz (KI) erstellt. 
               Trotz sorgfältiger Prüfung können Fehler in den Daten nicht ausgeschlossen werden.
             </p>
+            <p className="text-xs text-muted-foreground text-center pt-2 border-t border-border mt-3">
+              {siteConfig.appName} v{siteConfig.version}
+            </p>
           </div>
         </section>
       </main>
