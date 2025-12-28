@@ -1,4 +1,4 @@
-import { ArrowLeft, Database, Shield, Heart } from 'lucide-react';
+import { ArrowLeft, Database, Shield, Heart, Scale, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -20,6 +20,39 @@ const Info = () => {
       </header>
 
       <main className="container max-w-lg mx-auto px-4 py-6 space-y-6">
+        {/* Impressum - Legal Notice */}
+        <section className="bg-card rounded-2xl p-6 shadow-card space-y-4">
+          <h2 className="text-xl font-display font-bold flex items-center gap-2">
+            <Scale className="w-5 h-5 text-primary" />
+            Impressum
+          </h2>
+          <div className="space-y-3 text-sm">
+            <div>
+              <p className="font-semibold">Angaben gemäß § 5 TMG</p>
+              <p className="text-muted-foreground mt-1">
+                [Dein Name]<br />
+                [Straße und Hausnummer]<br />
+                [PLZ Ort]
+              </p>
+            </div>
+            <div>
+              <p className="font-semibold flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                Kontakt
+              </p>
+              <p className="text-muted-foreground mt-1">
+                E-Mail: [deine@email.de]
+              </p>
+            </div>
+            <div className="p-3 bg-muted rounded-xl">
+              <p className="text-xs text-muted-foreground">
+                💡 <strong>Hinweis:</strong> Bitte ersetze die Platzhalter oben mit deinen echten Kontaktdaten, 
+                bevor du die App öffentlich bereitstellst.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* About */}
         <section className="bg-card rounded-2xl p-6 shadow-card space-y-4">
           <h2 className="text-xl font-display font-bold flex items-center gap-2">
@@ -44,14 +77,14 @@ const Info = () => {
           </h2>
           <div className="space-y-3 text-sm">
             <div className="p-3 bg-muted rounded-xl">
+              <p className="font-semibold">Wikipedia</p>
+              <p className="text-muted-foreground">Liste der Kfz-Kennzeichen in Deutschland</p>
+              <p className="text-xs text-muted-foreground mt-1">CC BY-SA 4.0</p>
+            </div>
+            <div className="p-3 bg-muted rounded-xl">
               <p className="font-semibold">Bundesamt für Kartographie und Geodäsie (BKG)</p>
               <p className="text-muted-foreground">KFZ250 Datensatz mit Kreisgeometrien</p>
               <p className="text-xs text-muted-foreground mt-1">© GeoBasis-DE / BKG 2024</p>
-            </div>
-            <div className="p-3 bg-muted rounded-xl">
-              <p className="font-semibold">Wikidata (Optional)</p>
-              <p className="text-muted-foreground">Zusätzliche Informationen zu Kreisstädten</p>
-              <p className="text-xs text-muted-foreground mt-1">CC0 1.0 Universal</p>
             </div>
           </div>
         </section>
@@ -84,6 +117,12 @@ const Info = () => {
               <span>100% Open Source</span>
             </li>
           </ul>
+          <div className="p-3 bg-muted rounded-xl">
+            <p className="text-xs text-muted-foreground">
+              Diese App erhebt, speichert und überträgt keine personenbezogenen Daten. 
+              Die optionale Standortabfrage erfolgt ausschließlich lokal auf deinem Gerät.
+            </p>
+          </div>
         </section>
 
         {/* Disclaimer */}
