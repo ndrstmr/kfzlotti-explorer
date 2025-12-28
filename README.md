@@ -23,7 +23,7 @@ Eine Progressive Web App zum Lernen deutscher KFZ-Kennzeichen. Finde heraus, wel
 ```bash
 # Repository klonen
 git clone https://github.com/ndrstmr/kfzlotti-explorer.git
-cd kfzlotti
+cd kfzlotti-explorer
 
 # Abhängigkeiten installieren
 npm install
