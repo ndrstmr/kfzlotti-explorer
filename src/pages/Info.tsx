@@ -1,8 +1,11 @@
 import { ArrowLeft, Database, Shield, Heart, Scale, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { siteConfig } from '@/config/site';
 
 const Info = () => {
+  const isPlaceholder = siteConfig.legal.name.startsWith('[');
+  
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -30,9 +33,9 @@ const Info = () => {
             <div>
               <p className="font-semibold">Angaben gemäß § 5 TMG</p>
               <p className="text-muted-foreground mt-1">
-                [Dein Name]<br />
-                [Straße und Hausnummer]<br />
-                [PLZ Ort]
+                {siteConfig.legal.name}<br />
+                {siteConfig.legal.street}<br />
+                {siteConfig.legal.city}
               </p>
             </div>
             <div>
@@ -41,15 +44,17 @@ const Info = () => {
                 Kontakt
               </p>
               <p className="text-muted-foreground mt-1">
-                E-Mail: [deine@email.de]
+                E-Mail: {siteConfig.legal.email}
               </p>
             </div>
-            <div className="p-3 bg-muted rounded-xl">
-              <p className="text-xs text-muted-foreground">
-                💡 <strong>Hinweis:</strong> Bitte ersetze die Platzhalter oben mit deinen echten Kontaktdaten, 
-                bevor du die App öffentlich bereitstellst.
-              </p>
-            </div>
+            {isPlaceholder && (
+              <div className="p-3 bg-muted rounded-xl">
+                <p className="text-xs text-muted-foreground">
+                  💡 <strong>Hinweis:</strong> Bitte ersetze die Platzhalter in <code className="bg-background px-1 rounded">src/config/site.ts</code> mit deinen echten Kontaktdaten, 
+                  bevor du die App öffentlich bereitstellst.
+                </p>
+              </div>
+            )}
           </div>
         </section>
 
