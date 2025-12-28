@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Check, X, Trophy } from 'lucide-react';
+import { ArrowLeft, Check, X, Trophy, MapPin, Landmark, Grid3X3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useKfzData } from '@/hooks/useKfzData';
-import { getRandomKfzCode, searchKfzCode } from '@/lib/search';
+import { getRandomKfzCode, searchKfzCode, SearchResult } from '@/lib/search';
 import { getRandomBundeslaender, getBundeslandFromArs, getBundeslandFromShortName } from '@/data/bundeslaender';
 import { recordQuizAnswer, getUserProgress } from '@/lib/storage';
 import confetti from 'canvas-confetti';
@@ -13,6 +13,7 @@ interface QuizQuestion {
   kreisName: string;
   correctAnswer: string;
   options: string[];
+  result: SearchResult; // Store the full search result for displaying details
 }
 
 const Quiz = () => {
@@ -55,6 +56,7 @@ const Quiz = () => {
         kreisName: result.name,
         correctAnswer: bundesland.name,
         options: allOptions,
+        result, // Store the full result
       });
       setSelectedAnswer(null);
       setIsCorrect(null);
@@ -130,7 +132,7 @@ const Quiz = () => {
         </div>
       </header>
 
-      <main className="container max-w-lg mx-auto px-4 py-8 space-y-8">
+      <main className="container max-w-lg mx-auto px-4 py-8 space-y-6">
         {question && (
           <>
             {/* Question Card */}
@@ -181,15 +183,60 @@ const Quiz = () => {
               })}
             </div>
 
-            {/* Result & Next Button */}
+            {/* Result & Details */}
             {selectedAnswer !== null && (
               <div className="space-y-4 animate-fade-in">
+                {/* Result Message */}
                 <div className={`text-center py-4 rounded-2xl ${isCorrect ? 'bg-success/20' : 'bg-destructive/20'}`}>
                   <p className="text-2xl mb-2">{isCorrect ? '🎉' : '😅'}</p>
                   <p className="font-display font-bold text-lg">
                     {isCorrect ? 'Super! Das ist richtig!' : `Das war ${question.correctAnswer}`}
                   </p>
                 </div>
+
+                {/* Details Card */}
+                <div className="bg-card rounded-2xl p-5 shadow-card space-y-4">
+                  <h3 className="font-display font-bold text-lg flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-primary" />
+                    {question.result.name}
+                  </h3>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Bundesland */}
+                    <div className="bg-muted rounded-xl p-3">
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 mb-1">
+                        <Landmark className="w-3 h-3" />
+                        Bundesland
+                      </p>
+                      <p className="font-semibold">{question.result.bundesland}</p>
+                      <p className="text-sm text-muted-foreground">{question.result.bundeslandShort}</p>
+                    </div>
+                    
+                    {/* All KFZ Codes */}
+                    <div className="bg-muted rounded-xl p-3">
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 mb-1">
+                        <Grid3X3 className="w-3 h-3" />
+                        Alle Kürzel
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {question.result.kfzCodes.map(code => (
+                          <span
+                            key={code}
+                            className={`px-2 py-0.5 rounded-lg text-sm font-medium ${
+                              code === question.kfzCode
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-background border border-border'
+                            }`}
+                          >
+                            {code}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Next Button */}
                 <Button
                   className="w-full gradient-primary text-primary-foreground py-6 text-lg font-display font-bold rounded-2xl"
                   onClick={generateQuestion}
