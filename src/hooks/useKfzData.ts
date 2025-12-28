@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import type { KfzIndex, KfzTopoJSON, KreissitzData } from '@/data/schema';
+import type { KfzIndex, KfzTopoJSON, KreissitzData, CodeDetailsData } from '@/data/schema';
 import { getCachedData, setCachedData, CACHE_KEYS } from '@/lib/storage';
 
 // Embedded fallback data for offline-first experience
@@ -74,6 +74,7 @@ interface DataState {
   index: KfzIndex | null;
   topoJson: KfzTopoJSON | null;
   seats: KreissitzData | null;
+  codeDetails: CodeDetailsData | null;
   isLoading: boolean;
   error: string | null;
   isOffline: boolean;
@@ -84,6 +85,7 @@ export function useKfzData() {
     index: null,
     topoJson: null,
     seats: null,
+    codeDetails: null,
     isLoading: true,
     error: null,
     isOffline: !navigator.onLine,
@@ -146,6 +148,20 @@ export function useKfzData() {
         }
       }
 
+      // Code details are optional
+      let codeDetails = await getCachedData<CodeDetailsData>(CACHE_KEYS.CODE_DETAILS);
+      if (!codeDetails || navigator.onLine) {
+        try {
+          const codeDetailsResponse = await fetch('/data/code-details.json');
+          if (codeDetailsResponse.ok) {
+            codeDetails = await codeDetailsResponse.json();
+            await setCachedData(CACHE_KEYS.CODE_DETAILS, codeDetails);
+          }
+        } catch (e) {
+          console.log('Code details not available (optional)');
+        }
+      }
+
       // Use fallback if still no index
       if (!index) {
         console.log('Using fallback index data');
@@ -156,6 +172,7 @@ export function useKfzData() {
         index,
         topoJson,
         seats,
+        codeDetails,
         isLoading: false,
         error: null,
         isOffline: !navigator.onLine,
@@ -168,6 +185,7 @@ export function useKfzData() {
         index: FALLBACK_INDEX,
         topoJson: null,
         seats: null,
+        codeDetails: null,
         isLoading: false,
         error: 'Daten konnten nicht vollständig geladen werden. Einige Funktionen sind eingeschränkt.',
         isOffline: !navigator.onLine,

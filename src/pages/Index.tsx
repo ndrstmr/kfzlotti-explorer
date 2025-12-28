@@ -15,7 +15,7 @@ const Index = () => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
-  const { index, isLoading, error } = useKfzData();
+  const { index, codeDetails, isLoading, error } = useKfzData();
   const isOnline = useOnlineStatus();
 
   // Search when query changes
@@ -109,7 +109,7 @@ const Index = () => {
 
         {/* Results */}
         {!isLoading && results.length > 0 && (
-          <ResultCards results={results} />
+          <ResultCards results={results} codeDetails={codeDetails} />
         )}
 
         {/* No Results */}

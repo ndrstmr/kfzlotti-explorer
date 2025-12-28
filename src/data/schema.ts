@@ -65,6 +65,29 @@ export interface KfzIndex {
   }>;
 }
 
+// Code details: origin/meaning of each KFZ code
+export interface CodeDetail {
+  /** Original place name the code is derived from */
+  origin: string;
+  /** Type: 'current' (still in use) or 'historic' (Altkennzeichen) */
+  type: 'current' | 'historic';
+  /** Additional note about the code's history */
+  note?: string;
+}
+
+export interface CodeDetailsData {
+  /** Version of the data format */
+  version: string;
+  /** Source attribution */
+  source: string;
+  /** License */
+  license: string;
+  /** Description */
+  description: string;
+  /** Map of code to details */
+  codes: Record<string, CodeDetail>;
+}
+
 // Optional: Kreisstadt/seat data from Wikidata
 export interface KreissitzData {
   /** Version of the data format */

@@ -29,6 +29,7 @@ export const CACHE_KEYS = {
   INDEX: 'kfz-index',
   TOPO: 'kfz-topo',
   SEATS: 'kfz-seats',
+  CODE_DETAILS: 'kfz-code-details',
 } as const;
 
 /**
