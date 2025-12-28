@@ -186,15 +186,22 @@ const Settings = () => {
               </div>
             </div>
             {progress.quizErrors.length > 0 && (
-              <div className="bg-destructive/10 rounded-xl p-3">
-                <p className="text-sm font-medium text-destructive">
-                  {progress.quizErrors.length} Fehler zum Wiederholen
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {progress.quizErrors.slice(0, 5).join(', ')}
-                  {progress.quizErrors.length > 5 && ` +${progress.quizErrors.length - 5} weitere`}
-                </p>
-              </div>
+              <Link to="/quiz?mode=errors" className="block">
+                <div className="bg-orange-500/10 rounded-xl p-3 hover:bg-orange-500/20 transition-colors cursor-pointer border border-orange-500/20">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-orange-600">
+                        {progress.quizErrors.length} Fehler zum Wiederholen
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {progress.quizErrors.slice(0, 5).join(', ')}
+                        {progress.quizErrors.length > 5 && ` +${progress.quizErrors.length - 5} weitere`}
+                      </p>
+                    </div>
+                    <span className="text-orange-500">→</span>
+                  </div>
+                </div>
+              </Link>
             )}
             <div className="bg-orange-500/10 rounded-xl p-4 space-y-2">
               <p className="text-sm font-medium text-orange-600">
