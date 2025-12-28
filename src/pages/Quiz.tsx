@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Check, X, Trophy, MapPin, Landmark, Grid3X3 } from 'lucide-react';
+import { ArrowLeft, Check, X, Trophy, MapPin, Landmark, Grid3X3, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useKfzData } from '@/hooks/useKfzData';
@@ -7,6 +7,12 @@ import { getRandomKfzCode, searchKfzCode, SearchResult } from '@/lib/search';
 import { getRandomBundeslaender, getBundeslandFromArs, getBundeslandFromShortName } from '@/data/bundeslaender';
 import { recordQuizAnswer, getUserProgress } from '@/lib/storage';
 import confetti from 'canvas-confetti';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface QuizQuestion {
   kfzCode: string;
@@ -17,12 +23,17 @@ interface QuizQuestion {
 }
 
 const Quiz = () => {
-  const { index, isLoading } = useKfzData();
+  const { index, codeDetails, isLoading } = useKfzData();
   const [question, setQuestion] = useState<QuizQuestion | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [score, setScore] = useState({ correct: 0, total: 0 });
   const [askedCodes, setAskedCodes] = useState<Set<string>>(new Set());
+
+  const getCodeDetail = (code: string) => {
+    if (!codeDetails?.codes) return null;
+    return codeDetails.codes[code.toUpperCase()];
+  };
 
   const generateQuestion = () => {
     if (!index) return;
@@ -233,20 +244,38 @@ const Quiz = () => {
                         <Grid3X3 className="w-3 h-3" />
                         Alle Kürzel
                       </p>
-                      <div className="flex flex-wrap gap-1">
-                        {question.result.kfzCodes.map(code => (
-                          <span
-                            key={code}
-                            className={`px-2 py-0.5 rounded-lg text-sm font-medium ${
-                              code === question.kfzCode
-                                ? 'bg-primary text-primary-foreground'
-                                : 'bg-background border border-border'
-                            }`}
-                          >
-                            {code}
-                          </span>
-                        ))}
-                      </div>
+                      <TooltipProvider delayDuration={300}>
+                        <div className="flex flex-wrap gap-1">
+                          {question.result.kfzCodes.map(code => {
+                            const detail = getCodeDetail(code);
+                            return (
+                              <Tooltip key={code}>
+                                <TooltipTrigger asChild>
+                                  <span
+                                    className={`px-2 py-0.5 rounded-lg text-sm font-medium cursor-help ${
+                                      code === question.kfzCode
+                                        ? 'bg-primary text-primary-foreground'
+                                        : detail?.type === 'historic'
+                                        ? 'bg-secondary/20 text-secondary border border-secondary/30'
+                                        : 'bg-background border border-border'
+                                    }`}
+                                  >
+                                    {code}
+                                  </span>
+                                </TooltipTrigger>
+                                {detail && (
+                                  <TooltipContent side="top" className="max-w-xs">
+                                    <p className="font-semibold">{code} = {detail.origin}</p>
+                                    {detail.note && (
+                                      <p className="text-xs text-muted-foreground mt-1">{detail.note}</p>
+                                    )}
+                                  </TooltipContent>
+                                )}
+                              </Tooltip>
+                            );
+                          })}
+                        </div>
+                      </TooltipProvider>
                     </div>
                   </div>
                 </div>
