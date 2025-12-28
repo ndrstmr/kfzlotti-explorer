@@ -196,9 +196,22 @@ const Settings = () => {
                 </p>
               </div>
             )}
+            <div className="bg-orange-500/10 rounded-xl p-4 space-y-2">
+              <p className="text-sm font-medium text-orange-600">
+                Folgende Daten werden beim Reset gelöscht:
+              </p>
+              <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
+                <li>Quiz-Statistiken (Punkte, richtige/falsche Antworten)</li>
+                <li>Fehler-Liste zum Wiederholen</li>
+                <li>Verdiente Badges und Erfolge</li>
+              </ul>
+              <p className="text-xs text-muted-foreground italic">
+                Deine Suchhistorie und Einstellungen bleiben erhalten.
+              </p>
+            </div>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="outline" className="w-full rounded-xl">
+                <Button variant="outline" className="w-full rounded-xl border-orange-500/50 text-orange-600 hover:bg-orange-500/10">
                   <RotateCcw className="w-4 h-4 mr-2" />
                   Quiz zurücksetzen
                 </Button>
