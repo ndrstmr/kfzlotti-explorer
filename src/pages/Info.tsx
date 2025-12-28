@@ -4,7 +4,11 @@ import { Link } from 'react-router-dom';
 import { siteConfig } from '@/config/site';
 
 const Info = () => {
-  const isPlaceholder = siteConfig.legal.name.startsWith('[');
+  const hasPlaceholder = 
+    siteConfig.legal.name.startsWith('[') ||
+    siteConfig.legal.street.startsWith('[') ||
+    siteConfig.legal.city.startsWith('[') ||
+    siteConfig.legal.email.startsWith('[');
   
   return (
     <div className="min-h-screen bg-background">
@@ -47,7 +51,7 @@ const Info = () => {
                 E-Mail: {siteConfig.legal.email}
               </p>
             </div>
-            {isPlaceholder && (
+            {hasPlaceholder && (
               <div className="p-3 bg-muted rounded-xl">
                 <p className="text-xs text-muted-foreground">
                   💡 <strong>Hinweis:</strong> Bitte ersetze die Platzhalter in <code className="bg-background px-1 rounded">src/config/site.ts</code> mit deinen echten Kontaktdaten, 
