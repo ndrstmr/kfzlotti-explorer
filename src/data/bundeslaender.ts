@@ -24,6 +24,11 @@ export const BUNDESLAENDER: Record<string, Bundesland> = {
   '16': { code: '16', name: 'Thüringen', shortName: 'TH' },
 };
 
+// Reverse mapping: shortName -> Bundesland
+const BUNDESLAENDER_BY_SHORT: Record<string, Bundesland> = Object.fromEntries(
+  Object.values(BUNDESLAENDER).map(b => [b.shortName, b])
+);
+
 /**
  * Get Bundesland from ARS code
  * @param ars - The Amtlicher Regionalschlüssel (12 digits)
@@ -33,6 +38,16 @@ export function getBundeslandFromArs(ars: string): Bundesland | undefined {
   if (!ars || ars.length < 2) return undefined;
   const prefix = ars.substring(0, 2);
   return BUNDESLAENDER[prefix];
+}
+
+/**
+ * Get Bundesland from short name (e.g., "BY", "NW", "ST")
+ * @param shortName - The two-letter state abbreviation
+ * @returns The Bundesland or undefined if not found
+ */
+export function getBundeslandFromShortName(shortName: string): Bundesland | undefined {
+  if (!shortName) return undefined;
+  return BUNDESLAENDER_BY_SHORT[shortName.toUpperCase()];
 }
 
 /**

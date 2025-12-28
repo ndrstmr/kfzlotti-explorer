@@ -5,7 +5,7 @@
 
 import type { KfzIndex, KreisProperties } from '@/data/schema';
 import { normalizeKfzCode } from './normalize';
-import { getBundeslandFromArs } from '@/data/bundeslaender';
+import { getBundeslandFromArs, getBundeslandFromShortName } from '@/data/bundeslaender';
 
 export interface SearchResult {
   id: string;
@@ -35,7 +35,12 @@ export function searchKfzCode(code: string, index: KfzIndex): SearchResult[] {
     const feature = index.features[id];
     if (!feature) return null;
     
-    const bundesland = getBundeslandFromArs(feature.ars);
+    // Try to get Bundesland from ARS first, then from short name
+    let bundesland = getBundeslandFromArs(feature.ars);
+    if (!bundesland) {
+      // The ars field might contain the state short name (e.g., "ST", "BY")
+      bundesland = getBundeslandFromShortName(feature.ars);
+    }
     
     return {
       id,
