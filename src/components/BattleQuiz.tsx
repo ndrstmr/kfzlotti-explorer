@@ -23,7 +23,7 @@ interface PlayerScore {
 }
 
 type BattleMode = 'time' | 'count';
-type BattleType = 'versus' | 'solo'; // versus = same questions, solo = random questions each
+type BattleType = 'versus' | 'solo' | 'challenge'; // versus = same questions, solo = random questions each, challenge = single player
 type BattlePhase = 'setup' | 'playing' | 'results';
 
 interface BattleQuizProps {
@@ -37,9 +37,9 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
   const { index, isLoading } = useKfzData();
   
   // Setup state
-  const [playerNames, setPlayerNames] = useState<string[]>(['', '']);
+  const [playerNames, setPlayerNames] = useState<string[]>(['']);
   const [battleMode, setBattleMode] = useState<BattleMode>('time');
-  const [battleType, setBattleType] = useState<BattleType>('versus');
+  const [battleType, setBattleType] = useState<BattleType>('challenge');
   const [timeLimit, setTimeLimit] = useState(30);
   const [questionCount, setQuestionCount] = useState(20);
   
@@ -100,7 +100,8 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
   };
 
   const removePlayer = (idx: number) => {
-    if (playerNames.length > 2) {
+    const minPlayers = battleType === 'challenge' ? 1 : 2;
+    if (playerNames.length > minPlayers) {
       setPlayerNames(playerNames.filter((_, i) => i !== idx));
     }
   };
@@ -116,7 +117,17 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
   const startBattle = () => {
     const maxQuestions = battleMode === 'count' ? questionCount : 100; // Generate enough for time mode
     
-    if (battleType === 'solo') {
+    if (battleType === 'challenge') {
+      // Challenge mode: single player
+      const generatedQuestions = generateQuestions(maxQuestions);
+      
+      if (generatedQuestions.length < (battleMode === 'count' ? questionCount : 10)) {
+        return;
+      }
+      
+      setQuestions(generatedQuestions);
+      setPlayerScores([{ name: playerNames[0].trim(), correct: 0, wrong: 0, time: 0 }]);
+    } else if (battleType === 'solo') {
       // Solo mode: each player gets their own random questions
       const playersWithQuestions = playerNames.map(name => {
         const playerQuestions = generateQuestions(maxQuestions);
@@ -317,11 +328,66 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
         </header>
 
         <main className="container max-w-lg mx-auto px-4 py-6 space-y-6">
+          {/* Battle Type Selection */}
+          <div className="bg-card rounded-2xl p-5 shadow-card space-y-4">
+            <h2 className="font-display font-bold">Spielmodus</h2>
+            
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                onClick={() => {
+                  setBattleType('challenge');
+                  if (playerNames.length > 1) setPlayerNames([playerNames[0]]);
+                }}
+                className={`p-3 rounded-xl border-2 transition-all ${
+                  battleType === 'challenge' 
+                    ? 'border-green-500 bg-green-500/10' 
+                    : 'border-border hover:border-green-300'
+                }`}
+              >
+                <User className={`w-6 h-6 mx-auto mb-1 ${battleType === 'challenge' ? 'text-green-500' : 'text-muted-foreground'}`} />
+                <p className="font-bold text-xs">Challenge</p>
+                <p className="text-[10px] text-muted-foreground">1 Spieler</p>
+              </button>
+              
+              <button
+                onClick={() => {
+                  setBattleType('versus');
+                  if (playerNames.length < 2) setPlayerNames([...playerNames, '']);
+                }}
+                className={`p-3 rounded-xl border-2 transition-all ${
+                  battleType === 'versus' 
+                    ? 'border-blue-500 bg-blue-500/10' 
+                    : 'border-border hover:border-blue-300'
+                }`}
+              >
+                <Users className={`w-6 h-6 mx-auto mb-1 ${battleType === 'versus' ? 'text-blue-500' : 'text-muted-foreground'}`} />
+                <p className="font-bold text-xs">Versus</p>
+                <p className="text-[10px] text-muted-foreground">Gleiche Fragen</p>
+              </button>
+              
+              <button
+                onClick={() => {
+                  setBattleType('solo');
+                  if (playerNames.length < 2) setPlayerNames([...playerNames, '']);
+                }}
+                className={`p-3 rounded-xl border-2 transition-all ${
+                  battleType === 'solo' 
+                    ? 'border-orange-500 bg-orange-500/10' 
+                    : 'border-border hover:border-orange-300'
+                }`}
+              >
+                <Users className={`w-6 h-6 mx-auto mb-1 ${battleType === 'solo' ? 'text-orange-500' : 'text-muted-foreground'}`} />
+                <p className="font-bold text-xs">Random</p>
+                <p className="text-[10px] text-muted-foreground">Zufällige Fragen</p>
+              </button>
+            </div>
+          </div>
+
           {/* Player Names */}
           <div className="bg-card rounded-2xl p-5 shadow-card space-y-4">
             <h2 className="font-display font-bold flex items-center gap-2">
-              <Users className="w-5 h-5 text-purple-500" />
-              Spieler ({playerNames.length})
+              <User className="w-5 h-5 text-purple-500" />
+              {battleType === 'challenge' ? 'Spieler' : `Spieler (${playerNames.length})`}
             </h2>
             
             <div className="space-y-3">
@@ -331,12 +397,12 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
                     {idx + 1}
                   </div>
                   <Input
-                    placeholder={`Spieler ${idx + 1}`}
+                    placeholder={battleType === 'challenge' ? 'Dein Name' : `Spieler ${idx + 1}`}
                     value={name}
                     onChange={(e) => updatePlayerName(idx, e.target.value)}
                     className="flex-1"
                   />
-                  {playerNames.length > 2 && (
+                  {playerNames.length > (battleType === 'challenge' ? 1 : 2) && (
                     <Button variant="ghost" size="icon" onClick={() => removePlayer(idx)} className="text-destructive">
                       <X className="w-4 h-4" />
                     </Button>
@@ -345,45 +411,12 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
               ))}
             </div>
             
-            {playerNames.length < 4 && (
+            {battleType !== 'challenge' && playerNames.length < 4 && (
               <Button variant="outline" onClick={addPlayer} className="w-full">
                 <User className="w-4 h-4 mr-2" />
                 Spieler hinzufügen
               </Button>
             )}
-          </div>
-
-          {/* Battle Type (Versus vs Solo) */}
-          <div className="bg-card rounded-2xl p-5 shadow-card space-y-4">
-            <h2 className="font-display font-bold">Spielmodus</h2>
-            
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => setBattleType('versus')}
-                className={`p-4 rounded-xl border-2 transition-all ${
-                  battleType === 'versus' 
-                    ? 'border-blue-500 bg-blue-500/10' 
-                    : 'border-border hover:border-blue-300'
-                }`}
-              >
-                <Users className={`w-8 h-8 mx-auto mb-2 ${battleType === 'versus' ? 'text-blue-500' : 'text-muted-foreground'}`} />
-                <p className="font-bold text-sm">Versus</p>
-                <p className="text-xs text-muted-foreground">Gleiche Fragen</p>
-              </button>
-              
-              <button
-                onClick={() => setBattleType('solo')}
-                className={`p-4 rounded-xl border-2 transition-all ${
-                  battleType === 'solo' 
-                    ? 'border-orange-500 bg-orange-500/10' 
-                    : 'border-border hover:border-orange-300'
-                }`}
-              >
-                <User className={`w-8 h-8 mx-auto mb-2 ${battleType === 'solo' ? 'text-orange-500' : 'text-muted-foreground'}`} />
-                <p className="font-bold text-sm">Solo-Battle</p>
-                <p className="text-xs text-muted-foreground">Zufällige Fragen</p>
-              </button>
-            </div>
           </div>
 
           {/* Battle Mode */}
