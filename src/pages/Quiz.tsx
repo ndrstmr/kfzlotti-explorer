@@ -22,18 +22,30 @@ const Quiz = () => {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [score, setScore] = useState({ correct: 0, total: 0 });
+  const [askedCodes, setAskedCodes] = useState<Set<string>>(new Set());
 
   const generateQuestion = () => {
     if (!index) return;
 
+    // Get all available codes and filter out already asked ones
+    const allCodes = Object.keys(index.codeToIds);
+    const availableCodes = allCodes.filter(code => !askedCodes.has(code));
+    
+    // If all codes have been asked, reset the session
+    if (availableCodes.length === 0) {
+      setAskedCodes(new Set());
+      return generateQuestion();
+    }
+
     // Try a few times to find a valid question
     let attempts = 0;
-    const maxAttempts = 20;
+    const maxAttempts = Math.min(20, availableCodes.length);
+    const shuffledCodes = [...availableCodes].sort(() => Math.random() - 0.5);
     
     while (attempts < maxAttempts) {
+      const code = shuffledCodes[attempts];
       attempts++;
       
-      const code = getRandomKfzCode(index);
       const results = searchKfzCode(code, index);
       
       if (results.length === 0) continue;
@@ -51,12 +63,15 @@ const Quiz = () => {
       const wrongOptions = getRandomBundeslaender(bundesland.code, 3).map(b => b.name);
       const allOptions = [...wrongOptions, bundesland.name].sort(() => Math.random() - 0.5);
 
+      // Mark this code as asked
+      setAskedCodes(prev => new Set([...prev, code]));
+
       setQuestion({
         kfzCode: code,
         kreisName: result.name,
         correctAnswer: bundesland.name,
         options: allOptions,
-        result, // Store the full result
+        result,
       });
       setSelectedAnswer(null);
       setIsCorrect(null);
