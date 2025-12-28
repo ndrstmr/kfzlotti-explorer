@@ -40,7 +40,7 @@ const Quiz = () => {
   const [question, setQuestion] = useState<QuizQuestion | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [score, setScore] = useState({ correct: 0, total: 0 });
+  const [score, setScore] = useState({ correct: 0, total: 0, corrected: 0 });
   const [askedCodes, setAskedCodes] = useState<Set<string>>(new Set());
   const [errorCodes, setErrorCodes] = useState<string[]>([]);
   const [sessionStats, setSessionStats] = useState<SessionStats>({ correct: 0, wrong: 0, wrongCodes: [] });
@@ -62,7 +62,11 @@ const Quiz = () => {
       ]);
       setErrorCodes(progress.quizErrors);
       setSettings(userSettings);
-      setScore({ correct: progress.quizCorrect, total: progress.quizTotal });
+      setScore({ 
+        correct: progress.quizCorrect, 
+        total: progress.quizTotal,
+        corrected: progress.quizCorrected?.length || 0
+      });
     };
     loadData();
   }, []);
@@ -203,6 +207,7 @@ const Quiz = () => {
     }
 
     setScore(prev => ({
+      ...prev,
       correct: correct ? prev.correct + 1 : prev.correct,
       total: prev.total + 1,
     }));
@@ -324,6 +329,12 @@ const Quiz = () => {
               <span className="text-muted-foreground">Gesamt falsch</span>
               <span className="font-bold text-destructive">{score.total - score.correct}</span>
             </div>
+            {score.corrected > 0 && (
+              <div className="flex justify-between text-sm mt-2 pt-2 border-t border-border">
+                <span className="text-muted-foreground">Korrigierte Fehler</span>
+                <span className="font-bold text-orange-500">{score.corrected}</span>
+              </div>
+            )}
           </div>
         </main>
       </div>

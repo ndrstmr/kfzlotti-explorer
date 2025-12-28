@@ -175,14 +175,18 @@ const Settings = () => {
               <Trophy className="w-5 h-5 text-primary" />
               Quiz-Statistiken
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-3">
               <div className="bg-muted rounded-xl p-4 text-center">
-                <p className="text-3xl font-bold text-success">{progress.quizCorrect}</p>
+                <p className="text-2xl font-bold text-success">{progress.quizCorrect}</p>
                 <p className="text-xs text-muted-foreground">Richtig</p>
               </div>
               <div className="bg-muted rounded-xl p-4 text-center">
-                <p className="text-3xl font-bold text-destructive">{progress.quizTotal - progress.quizCorrect}</p>
+                <p className="text-2xl font-bold text-destructive">{progress.quizTotal - progress.quizCorrect}</p>
                 <p className="text-xs text-muted-foreground">Falsch</p>
+              </div>
+              <div className="bg-muted rounded-xl p-4 text-center">
+                <p className="text-2xl font-bold text-orange-500">{progress.quizCorrected?.length || 0}</p>
+                <p className="text-xs text-muted-foreground">Korrigiert</p>
               </div>
             </div>
             {progress.quizErrors.length > 0 && (
