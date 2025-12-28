@@ -373,9 +373,37 @@ const Quiz = () => {
             {sessionStats.wrong > 0 && (
               <Button
                 onClick={() => {
+                  // Reset state and update availableErrorCount with remaining errors
+                  const remainingErrors = sessionStats.wrongCodes;
                   setAskedCodes(new Set());
+                  setAvailableErrorCount(remainingErrors.length);
                   setSessionStats({ correct: 0, wrong: 0, wrongCodes: [] });
-                  generateQuestion('errors');
+                  // Generate question with fresh askedCodes (pass empty set directly)
+                  if (!index) return;
+                  const availableCodes = errorCodes.filter(code => remainingErrors.includes(code));
+                  if (availableCodes.length === 0) return;
+                  
+                  const code = availableCodes[Math.floor(Math.random() * availableCodes.length)];
+                  const results = searchKfzCode(code, index);
+                  if (results.length === 0) return;
+                  
+                  const result = results[0];
+                  let bundesland = getBundeslandFromArs(result.ars) || getBundeslandFromShortName(result.ars);
+                  if (!bundesland) return;
+                  
+                  const wrongOptions = getRandomBundeslaender(bundesland.code, 3).map(b => b.name);
+                  const allOptions = [...wrongOptions, bundesland.name].sort(() => Math.random() - 0.5);
+                  
+                  setAskedCodes(new Set([code]));
+                  setQuestion({
+                    kfzCode: code,
+                    kreisName: result.name,
+                    correctAnswer: bundesland.name,
+                    options: allOptions,
+                    result,
+                  });
+                  setSelectedAnswer(null);
+                  setIsCorrect(null);
                 }}
                 className="w-full gradient-fun text-primary-foreground py-6 text-lg font-display font-bold rounded-2xl"
               >
