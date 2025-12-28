@@ -1,4 +1,4 @@
-import { ArrowLeft, Database, Shield, Heart, Scale, Mail } from 'lucide-react';
+import { ArrowLeft, Database, Shield, Heart, Scale, Mail, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { siteConfig } from '@/config/site';
@@ -90,6 +90,35 @@ const Info = () => {
               <p className="font-semibold">Bundesamt für Kartographie und Geodäsie (BKG)</p>
               <p className="text-muted-foreground">KFZ250 Datensatz mit Kreisgeometrien</p>
               <p className="text-xs text-muted-foreground mt-1">© GeoBasis-DE / BKG 2024</p>
+            </div>
+          </div>
+        </section>
+
+        {/* License */}
+        <section className="bg-card rounded-2xl p-6 shadow-card space-y-4">
+          <h2 className="text-xl font-display font-bold flex items-center gap-2">
+            <FileText className="w-5 h-5 text-warning" />
+            Lizenz
+          </h2>
+          <div className="space-y-3 text-sm">
+            <div className="p-3 bg-muted rounded-xl">
+              <p className="font-semibold">Software</p>
+              <p className="text-muted-foreground">European Union Public Licence (EUPL-1.2)</p>
+              <a 
+                href="https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs text-primary hover:underline"
+              >
+                Lizenztext ansehen →
+              </a>
+            </div>
+            <div className="p-3 bg-muted rounded-xl">
+              <p className="font-semibold">Daten</p>
+              <ul className="text-muted-foreground mt-1 space-y-1">
+                <li>• KFZ-Daten: CC BY-SA 4.0 (Wikipedia)</li>
+                <li>• Geodaten: dl-de/by-2-0 (© GeoBasis-DE / BKG)</li>
+              </ul>
             </div>
           </div>
         </section>

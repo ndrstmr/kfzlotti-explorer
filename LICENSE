@@ -1,0 +1,49 @@
+# Lizenzen / Licenses
+
+## Software
+
+Die Software dieses Projekts steht unter der **European Union Public Licence (EUPL) Version 1.2**.
+
+The software of this project is licensed under the **European Union Public Licence (EUPL) Version 1.2**.
+
+SPDX-License-Identifier: EUPL-1.2
+
+Vollständiger Lizenztext / Full license text:
+https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+---
+
+## Daten / Data
+
+Die Daten in diesem Projekt (`public/data/`) stammen aus verschiedenen Quellen mit eigenen Lizenzen:
+
+The data in this project (`public/data/`) comes from different sources with their own licenses:
+
+### KFZ-Kennzeichen-Daten / License Plate Data
+
+**Quelle / Source:** Wikipedia - Liste der Kfz-Kennzeichen in Deutschland  
+**Lizenz / License:** Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)  
+**Link:** https://creativecommons.org/licenses/by-sa/4.0/
+
+Bei Verwendung der KFZ-Daten muss die Lizenz CC BY-SA 4.0 eingehalten werden.
+When using the license plate data, the CC BY-SA 4.0 license must be followed.
+
+### Geodaten / Geodata
+
+**Quelle / Source:** Bundesamt für Kartographie und Geodäsie (BKG)  
+**Datensatz / Dataset:** KFZ250 - Kreisgeometrien  
+**Lizenz / License:** Datenlizenz Deutschland – Namensnennung – Version 2.0 (dl-de/by-2-0)  
+**Link:** https://www.govdata.de/dl-de/by-2-0
+
+**Quellenangabe / Attribution:**  
+© GeoBasis-DE / BKG (2024)
+
+---
+
+## Hinweis / Notice
+
+Die Trennung von Software- und Datenlizenzen ermöglicht die Nutzung der Software unter EUPL, 
+während die Daten ihren ursprünglichen Lizenzbedingungen unterliegen.
+
+The separation of software and data licenses allows the software to be used under EUPL,
+while the data remains subject to its original license terms.
