@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Check, X, Trophy, MapPin, Landmark, Grid3X3, AlertCircle, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Check, X, Trophy, MapPin, Landmark, Grid3X3, AlertCircle, RotateCcw, Swords } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useKfzData } from '@/hooks/useKfzData';
@@ -8,6 +8,7 @@ import { getRandomBundeslaender, getBundeslandFromArs, getBundeslandFromShortNam
 import { recordQuizAnswer, recordCorrectedAnswer, getUserProgress, getUserSettings } from '@/lib/storage';
 import type { UserSettings } from '@/data/schema';
 import confetti from 'canvas-confetti';
+import BattleQuiz from '@/components/BattleQuiz';
 import {
   Tooltip,
   TooltipContent,
@@ -29,7 +30,7 @@ interface SessionStats {
   wrongCodes: string[];
 }
 
-type QuizMode = 'normal' | 'errors';
+type QuizMode = 'normal' | 'errors' | 'battle';
 
 const Quiz = () => {
   const [searchParams] = useSearchParams();
@@ -151,6 +152,12 @@ const Quiz = () => {
   };
 
   const startQuiz = (selectedMode: QuizMode) => {
+    if (selectedMode === 'battle') {
+      setMode('battle');
+      setShowModeSelect(false);
+      return;
+    }
+    
     const emptyAsked = new Set<string>();
 
     setMode(selectedMode);
@@ -270,7 +277,10 @@ const Quiz = () => {
             </p>
           </div>
 
-          <div className="space-y-4">
+          {/* Single Player Section */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-1">Einzelspieler</h3>
+            
             {/* Normal Mode */}
             <button
               onClick={() => startQuiz('normal')}
@@ -319,6 +329,32 @@ const Quiz = () => {
             </button>
           </div>
 
+          {/* Multiplayer Section */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-1">Mehrspieler</h3>
+            
+            {/* Battle Mode */}
+            <button
+              onClick={() => startQuiz('battle')}
+              className="w-full bg-gradient-to-r from-purple-600/10 to-pink-600/10 rounded-2xl p-6 shadow-card text-left hover:shadow-lg transition-shadow border-2 border-transparent hover:border-purple-500"
+            >
+              <div className="flex items-start gap-4">
+                <div className="text-4xl">⚔️</div>
+                <div className="flex-1">
+                  <h3 className="font-display font-bold text-lg flex items-center gap-2">
+                    Battle-Modus
+                    <span className="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-2 py-0.5 rounded-full">
+                      NEU
+                    </span>
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Lokal gegen Freunde antreten - wer weiß mehr?
+                  </p>
+                </div>
+              </div>
+            </button>
+          </div>
+
           {/* Current Stats */}
           <div className="bg-muted/50 rounded-2xl p-4">
             <div className="flex justify-between text-sm">
@@ -339,6 +375,11 @@ const Quiz = () => {
         </main>
       </div>
     );
+  }
+
+  // Battle mode - render separate component
+  if (mode === 'battle') {
+    return <BattleQuiz onBack={() => setShowModeSelect(true)} />;
   }
 
   // Error mode completed
