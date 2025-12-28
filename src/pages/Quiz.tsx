@@ -72,16 +72,18 @@ const Quiz = () => {
     setAvailableErrorCount(errorCodes.length);
   }, [errorCodes]);
 
-  const generateQuestion = (forMode?: QuizMode) => {
+  const generateQuestion = (forMode?: QuizMode, askedOverride?: Set<string>) => {
     const currentMode = forMode ?? mode;
     if (!index) return;
 
+    const currentAsked = askedOverride ?? askedCodes;
+
     let availableCodes: string[];
-    
+
     if (currentMode === 'errors') {
       // Only use error codes that haven't been asked yet in this session
-      availableCodes = errorCodes.filter(code => !askedCodes.has(code));
-      
+      availableCodes = errorCodes.filter(code => !currentAsked.has(code));
+
       if (availableCodes.length === 0) {
         setQuestion(null);
         return;
@@ -89,11 +91,11 @@ const Quiz = () => {
     } else {
       // Normal mode: all codes except already asked
       const allCodes = Object.keys(index.codeToIds);
-      availableCodes = allCodes.filter(code => !askedCodes.has(code));
-      
+      availableCodes = allCodes.filter(code => !currentAsked.has(code));
+
       if (availableCodes.length === 0) {
         setAskedCodes(new Set());
-        availableCodes = Object.keys(index.codeToIds);
+        availableCodes = allCodes;
       }
     }
 
@@ -101,28 +103,32 @@ const Quiz = () => {
     let attempts = 0;
     const maxAttempts = Math.min(20, availableCodes.length);
     const shuffledCodes = [...availableCodes].sort(() => Math.random() - 0.5);
-    
+
     while (attempts < maxAttempts) {
       const code = shuffledCodes[attempts];
       attempts++;
-      
+
       const results = searchKfzCode(code, index);
-      
+
       if (results.length === 0) continue;
 
       const result = results[0];
-      
+
       let bundesland = getBundeslandFromArs(result.ars);
       if (!bundesland) {
         bundesland = getBundeslandFromShortName(result.ars);
       }
-      
+
       if (!bundesland) continue;
 
       const wrongOptions = getRandomBundeslaender(bundesland.code, 3).map(b => b.name);
       const allOptions = [...wrongOptions, bundesland.name].sort(() => Math.random() - 0.5);
 
-      setAskedCodes(prev => new Set([...prev, code]));
+      if (askedOverride) {
+        setAskedCodes(new Set([...currentAsked, code]));
+      } else {
+        setAskedCodes(prev => new Set([...prev, code]));
+      }
 
       setQuestion({
         kfzCode: code,
@@ -135,17 +141,23 @@ const Quiz = () => {
       setIsCorrect(null);
       return;
     }
-    
+
     // Could not generate question
     setQuestion(null);
   };
 
   const startQuiz = (selectedMode: QuizMode) => {
+    const emptyAsked = new Set<string>();
+
     setMode(selectedMode);
     setShowModeSelect(false);
-    setAskedCodes(new Set());
+    setAskedCodes(emptyAsked);
     setSessionStats({ correct: 0, wrong: 0, wrongCodes: [] });
-    generateQuestion(selectedMode);
+    setQuestion(null);
+    setSelectedAnswer(null);
+    setIsCorrect(null);
+
+    generateQuestion(selectedMode, emptyAsked);
   };
 
   useEffect(() => {
@@ -373,37 +385,14 @@ const Quiz = () => {
             {sessionStats.wrong > 0 && (
               <Button
                 onClick={() => {
-                  // Reset state and update availableErrorCount with remaining errors
-                  const remainingErrors = sessionStats.wrongCodes;
-                  setAskedCodes(new Set());
-                  setAvailableErrorCount(remainingErrors.length);
+                  const emptyAsked = new Set<string>();
+                  setAskedCodes(emptyAsked);
                   setSessionStats({ correct: 0, wrong: 0, wrongCodes: [] });
-                  // Generate question with fresh askedCodes (pass empty set directly)
-                  if (!index) return;
-                  const availableCodes = errorCodes.filter(code => remainingErrors.includes(code));
-                  if (availableCodes.length === 0) return;
-                  
-                  const code = availableCodes[Math.floor(Math.random() * availableCodes.length)];
-                  const results = searchKfzCode(code, index);
-                  if (results.length === 0) return;
-                  
-                  const result = results[0];
-                  let bundesland = getBundeslandFromArs(result.ars) || getBundeslandFromShortName(result.ars);
-                  if (!bundesland) return;
-                  
-                  const wrongOptions = getRandomBundeslaender(bundesland.code, 3).map(b => b.name);
-                  const allOptions = [...wrongOptions, bundesland.name].sort(() => Math.random() - 0.5);
-                  
-                  setAskedCodes(new Set([code]));
-                  setQuestion({
-                    kfzCode: code,
-                    kreisName: result.name,
-                    correctAnswer: bundesland.name,
-                    options: allOptions,
-                    result,
-                  });
+                  setQuestion(null);
                   setSelectedAnswer(null);
                   setIsCorrect(null);
+
+                  generateQuestion('errors', emptyAsked);
                 }}
                 className="w-full gradient-fun text-primary-foreground py-6 text-lg font-display font-bold rounded-2xl"
               >
@@ -445,7 +434,9 @@ const Quiz = () => {
               </h1>
               {mode === 'errors' && (
                 <p className="text-xs text-primary-foreground/80 mt-1">
-                  {availableErrorCount - sessionStats.correct - sessionStats.wrong + (question && selectedAnswer === null ? 1 : 0)} verbleibend
+                  {errorCodes.filter(code => !askedCodes.has(code)).length +
+                    (question !== null && selectedAnswer === null && errorCodes.includes(question.kfzCode) ? 1 : 0)}{' '}
+                  verbleibend
                 </p>
               )}
             </div>
