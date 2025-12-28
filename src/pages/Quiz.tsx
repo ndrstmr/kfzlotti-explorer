@@ -417,7 +417,7 @@ const Quiz = () => {
               </h1>
               {mode === 'errors' && (
                 <p className="text-xs text-primary-foreground/80 mt-1">
-                  {errorCodes.length - askedCodes.size + (question ? 1 : 0)} verbleibend
+                  {availableErrorCount - sessionStats.correct - sessionStats.wrong + (question && selectedAnswer === null ? 1 : 0)} verbleibend
                 </p>
               )}
             </div>
