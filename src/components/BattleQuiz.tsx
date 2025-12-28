@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { ArrowLeft, Users, Clock, Hash, Trophy, Crown, Play, RotateCcw, Check, X, User } from 'lucide-react';
+import { ArrowLeft, Users, Clock, Hash, Trophy, Crown, Play, RotateCcw, Check, X, User, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useKfzData } from '@/hooks/useKfzData';
 import { searchKfzCode, SearchResult } from '@/lib/search';
 import { getRandomBundeslaender, getBundeslandFromArs, getBundeslandFromShortName } from '@/data/bundeslaender';
@@ -15,12 +16,19 @@ interface BattleQuestion {
   result: SearchResult;
 }
 
+interface AnswerRecord {
+  question: BattleQuestion;
+  givenAnswer: string;
+  isCorrect: boolean;
+}
+
 interface PlayerScore {
   name: string;
   correct: number;
   wrong: number;
   time: number; // in milliseconds
   questions?: BattleQuestion[]; // For solo mode - each player gets own questions
+  answers: AnswerRecord[]; // History of all answers
 }
 
 type BattleMode = 'time' | 'count';
@@ -142,7 +150,7 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
       
       const playerName = playerNames[0].trim() || defaultPlayerName || 'Spieler';
       setQuestions(generatedQuestions);
-      setPlayerScores([{ name: playerName, correct: 0, wrong: 0, time: 0 }]);
+      setPlayerScores([{ name: playerName, correct: 0, wrong: 0, time: 0, answers: [] }]);
     } else if (battleType === 'solo') {
       // Solo mode: each player gets their own random questions
       const playersWithQuestions = playerNames.map(name => {
@@ -152,7 +160,8 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
           correct: 0, 
           wrong: 0, 
           time: 0,
-          questions: playerQuestions
+          questions: playerQuestions,
+          answers: []
         };
       });
       
@@ -171,7 +180,7 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
       }
       
       setQuestions(generatedQuestions);
-      setPlayerScores(playerNames.map(name => ({ name: name.trim(), correct: 0, wrong: 0, time: 0 })));
+      setPlayerScores(playerNames.map(name => ({ name: name.trim(), correct: 0, wrong: 0, time: 0, answers: [] })));
     }
     
     setCurrentPlayerIndex(0);
@@ -263,6 +272,12 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
       } else {
         newScores[currentPlayerIndex].wrong += 1;
       }
+      // Record the answer
+      newScores[currentPlayerIndex].answers.push({
+        question,
+        givenAnswer: answer,
+        isCorrect: correct
+      });
       return newScores;
     });
     
@@ -714,28 +729,64 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
           
           <div className="space-y-3">
             {sortedScores.map((player, idx) => (
-              <div
-                key={idx}
-                className={`flex items-center gap-3 p-3 rounded-xl ${
-                  idx === 0 ? 'bg-yellow-500/10 border border-yellow-500/30' : 'bg-muted'
-                }`}
-              >
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-                  idx === 0 ? 'bg-yellow-500 text-white' : 'bg-muted-foreground/20'
-                }`}>
-                  {idx + 1}
+              <Collapsible key={idx}>
+                <div
+                  className={`rounded-xl ${
+                    idx === 0 ? 'bg-yellow-500/10 border border-yellow-500/30' : 'bg-muted'
+                  }`}
+                >
+                  <CollapsibleTrigger className="w-full">
+                    <div className="flex items-center gap-3 p-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+                        idx === 0 ? 'bg-yellow-500 text-white' : 'bg-muted-foreground/20'
+                      }`}>
+                        {idx + 1}
+                      </div>
+                      <div className="flex-1 text-left">
+                        <p className="font-bold">{player.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {battleMode === 'count' ? formatTime(player.time) : `${player.correct + player.wrong} beantwortet`}
+                        </p>
+                      </div>
+                      <div className="text-right mr-2">
+                        <p className="font-bold text-success">{player.correct} ✓</p>
+                        <p className="text-xs text-destructive">{player.wrong} ✗</p>
+                      </div>
+                      <ChevronDown className="w-5 h-5 text-muted-foreground transition-transform duration-200 data-[state=open]:rotate-180" />
+                    </div>
+                  </CollapsibleTrigger>
+                  
+                  <CollapsibleContent>
+                    <div className="px-3 pb-3 pt-1 border-t border-border/50">
+                      <div className="space-y-2 mt-2 max-h-48 overflow-y-auto">
+                        {player.answers.map((answer, answerIdx) => (
+                          <div 
+                            key={answerIdx}
+                            className={`flex items-center gap-2 text-sm p-2 rounded-lg ${
+                              answer.isCorrect ? 'bg-success/10' : 'bg-destructive/10'
+                            }`}
+                          >
+                            <span className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${
+                              answer.isCorrect ? 'bg-success text-white' : 'bg-destructive text-white'
+                            }`}>
+                              {answer.isCorrect ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                            </span>
+                            <span className="font-mono font-bold">{answer.question.kfzCode}</span>
+                            <span className="flex-1 truncate text-muted-foreground">
+                              {answer.question.kreisName}
+                            </span>
+                            {!answer.isCorrect && (
+                              <span className="text-xs text-destructive">
+                                ({answer.givenAnswer})
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CollapsibleContent>
                 </div>
-                <div className="flex-1">
-                  <p className="font-bold">{player.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {battleMode === 'count' ? formatTime(player.time) : `${player.correct + player.wrong} beantwortet`}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-success">{player.correct} ✓</p>
-                  <p className="text-xs text-destructive">{player.wrong} ✗</p>
-                </div>
-              </div>
+              </Collapsible>
             ))}
           </div>
         </div>
