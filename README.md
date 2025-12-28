@@ -22,7 +22,7 @@ Eine Progressive Web App zum Lernen deutscher KFZ-Kennzeichen. Finde heraus, wel
 
 ```bash
 # Repository klonen
-git clone https://github.com/your-username/kfzlotti.git
+git clone https://github.com/ndrstmr/kfzlotti-explorer.git
 cd kfzlotti
 
 # Abhängigkeiten installieren
@@ -57,14 +57,14 @@ Vor der Veröffentlichung musst du deine Kontaktdaten in `src/config/site.ts` ei
 ```typescript
 export const siteConfig = {
   appName: 'KFZlotti',
-  
+
   legal: {
     name: 'Max Mustermann',           // Dein Name
     street: 'Musterstraße 123',       // Deine Adresse
     city: '12345 Musterstadt',        // PLZ und Ort
     email: 'kontakt@example.de',      // Deine E-Mail
   },
-  
+
   // ...
 };
 ```
@@ -120,6 +120,7 @@ Beiträge sind willkommen! So kannst du helfen:
 ## 📊 Datenquellen
 
 Die Kennzeichen-Daten stammen aus öffentlichen Quellen:
+
 - Geodaten: © GeoBasis-DE / BKG (dl-de/by-2-0)
 - KFZ-Kennzeichen: Öffentliche Verzeichnisse (CC BY-SA 4.0)
 
@@ -128,6 +129,7 @@ Die Kennzeichen-Daten stammen aus öffentlichen Quellen:
 Dieses Projekt steht unter der **EUPL 1.2** Lizenz – siehe [LICENSE](LICENSE) für Details.
 
 Die Daten unterliegen eigenen Lizenzen:
+
 - Geodaten: [dl-de/by-2-0](https://www.govdata.de/dl-de/by-2-0)
 - KFZ-Daten: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 
