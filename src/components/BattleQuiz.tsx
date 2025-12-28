@@ -19,9 +19,11 @@ interface PlayerScore {
   correct: number;
   wrong: number;
   time: number; // in milliseconds
+  questions?: BattleQuestion[]; // For solo mode - each player gets own questions
 }
 
 type BattleMode = 'time' | 'count';
+type BattleType = 'versus' | 'solo'; // versus = same questions, solo = random questions each
 type BattlePhase = 'setup' | 'playing' | 'results';
 
 interface BattleQuizProps {
@@ -37,6 +39,7 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
   // Setup state
   const [playerNames, setPlayerNames] = useState<string[]>(['', '']);
   const [battleMode, setBattleMode] = useState<BattleMode>('time');
+  const [battleType, setBattleType] = useState<BattleType>('versus');
   const [timeLimit, setTimeLimit] = useState(30);
   const [questionCount, setQuestionCount] = useState(20);
   
@@ -112,14 +115,38 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
 
   const startBattle = () => {
     const maxQuestions = battleMode === 'count' ? questionCount : 100; // Generate enough for time mode
-    const generatedQuestions = generateQuestions(maxQuestions);
     
-    if (generatedQuestions.length < (battleMode === 'count' ? questionCount : 10)) {
-      return; // Not enough questions
+    if (battleType === 'solo') {
+      // Solo mode: each player gets their own random questions
+      const playersWithQuestions = playerNames.map(name => {
+        const playerQuestions = generateQuestions(maxQuestions);
+        return { 
+          name: name.trim(), 
+          correct: 0, 
+          wrong: 0, 
+          time: 0,
+          questions: playerQuestions
+        };
+      });
+      
+      if (playersWithQuestions.some(p => (p.questions?.length || 0) < (battleMode === 'count' ? questionCount : 10))) {
+        return; // Not enough questions
+      }
+      
+      setPlayerScores(playersWithQuestions);
+      setQuestions(playersWithQuestions[0].questions || []);
+    } else {
+      // Versus mode: same questions for all players
+      const generatedQuestions = generateQuestions(maxQuestions);
+      
+      if (generatedQuestions.length < (battleMode === 'count' ? questionCount : 10)) {
+        return; // Not enough questions
+      }
+      
+      setQuestions(generatedQuestions);
+      setPlayerScores(playerNames.map(name => ({ name: name.trim(), correct: 0, wrong: 0, time: 0 })));
     }
     
-    setQuestions(generatedQuestions);
-    setPlayerScores(playerNames.map(name => ({ name: name.trim(), correct: 0, wrong: 0, time: 0 })));
     setCurrentPlayerIndex(0);
     setCurrentQuestionIndex(0);
     setSelectedAnswer(null);
@@ -161,10 +188,20 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
     
     if (currentPlayerIndex < playerNames.length - 1) {
       // Next player
-      setCurrentPlayerIndex(prev => prev + 1);
+      const nextPlayerIndex = currentPlayerIndex + 1;
+      setCurrentPlayerIndex(nextPlayerIndex);
       setCurrentQuestionIndex(0);
       setSelectedAnswer(null);
       setIsCorrect(null);
+      
+      // In solo mode, switch to next player's questions
+      if (battleType === 'solo') {
+        setPlayerScores(prev => {
+          const nextPlayerQuestions = prev[nextPlayerIndex].questions || [];
+          setQuestions(nextPlayerQuestions);
+          return prev;
+        });
+      }
       
       if (battleMode === 'time') {
         setTimeRemaining(timeLimit);
@@ -314,6 +351,39 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
                 Spieler hinzufügen
               </Button>
             )}
+          </div>
+
+          {/* Battle Type (Versus vs Solo) */}
+          <div className="bg-card rounded-2xl p-5 shadow-card space-y-4">
+            <h2 className="font-display font-bold">Spielmodus</h2>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setBattleType('versus')}
+                className={`p-4 rounded-xl border-2 transition-all ${
+                  battleType === 'versus' 
+                    ? 'border-blue-500 bg-blue-500/10' 
+                    : 'border-border hover:border-blue-300'
+                }`}
+              >
+                <Users className={`w-8 h-8 mx-auto mb-2 ${battleType === 'versus' ? 'text-blue-500' : 'text-muted-foreground'}`} />
+                <p className="font-bold text-sm">Versus</p>
+                <p className="text-xs text-muted-foreground">Gleiche Fragen</p>
+              </button>
+              
+              <button
+                onClick={() => setBattleType('solo')}
+                className={`p-4 rounded-xl border-2 transition-all ${
+                  battleType === 'solo' 
+                    ? 'border-orange-500 bg-orange-500/10' 
+                    : 'border-border hover:border-orange-300'
+                }`}
+              >
+                <User className={`w-8 h-8 mx-auto mb-2 ${battleType === 'solo' ? 'text-orange-500' : 'text-muted-foreground'}`} />
+                <p className="font-bold text-sm">Solo-Battle</p>
+                <p className="text-xs text-muted-foreground">Zufällige Fragen</p>
+              </button>
+            </div>
           </div>
 
           {/* Battle Mode */}
