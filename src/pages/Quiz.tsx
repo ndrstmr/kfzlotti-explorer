@@ -416,7 +416,12 @@ const Quiz = () => {
             </div>
             <div className="flex items-center gap-1 bg-primary-foreground/20 rounded-full px-3 py-1">
               <Trophy className="w-4 h-4" />
-              <span className="font-bold">{sessionStats.correct}/{sessionStats.correct + sessionStats.wrong}</span>
+              <span className="font-bold">
+                {mode === 'errors' 
+                  ? `${sessionStats.correct}/${sessionStats.correct + sessionStats.wrong}`
+                  : `${score.correct}/${score.total}`
+                }
+              </span>
             </div>
           </div>
         </div>
