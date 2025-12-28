@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useKfzData } from '@/hooks/useKfzData';
 import { getRandomKfzCode, searchKfzCode } from '@/lib/search';
-import { getRandomBundeslaender, getBundeslandFromArs } from '@/data/bundeslaender';
+import { getRandomBundeslaender, getBundeslandFromArs, getBundeslandFromShortName } from '@/data/bundeslaender';
 import { recordQuizAnswer, getUserProgress } from '@/lib/storage';
 import confetti from 'canvas-confetti';
 
@@ -25,33 +25,43 @@ const Quiz = () => {
   const generateQuestion = () => {
     if (!index) return;
 
-    const code = getRandomKfzCode(index);
-    const results = searchKfzCode(code, index);
+    // Try a few times to find a valid question
+    let attempts = 0;
+    const maxAttempts = 20;
     
-    if (results.length === 0) {
-      generateQuestion();
+    while (attempts < maxAttempts) {
+      attempts++;
+      
+      const code = getRandomKfzCode(index);
+      const results = searchKfzCode(code, index);
+      
+      if (results.length === 0) continue;
+
+      const result = results[0];
+      
+      // Try to get Bundesland from ARS first, then from short name
+      let bundesland = getBundeslandFromArs(result.ars);
+      if (!bundesland) {
+        bundesland = getBundeslandFromShortName(result.ars);
+      }
+      
+      if (!bundesland) continue;
+
+      const wrongOptions = getRandomBundeslaender(bundesland.code, 3).map(b => b.name);
+      const allOptions = [...wrongOptions, bundesland.name].sort(() => Math.random() - 0.5);
+
+      setQuestion({
+        kfzCode: code,
+        kreisName: result.name,
+        correctAnswer: bundesland.name,
+        options: allOptions,
+      });
+      setSelectedAnswer(null);
+      setIsCorrect(null);
       return;
     }
-
-    const result = results[0];
-    const bundesland = getBundeslandFromArs(result.ars);
     
-    if (!bundesland) {
-      generateQuestion();
-      return;
-    }
-
-    const wrongOptions = getRandomBundeslaender(bundesland.code, 3).map(b => b.name);
-    const allOptions = [...wrongOptions, bundesland.name].sort(() => Math.random() - 0.5);
-
-    setQuestion({
-      kfzCode: code,
-      kreisName: result.name,
-      correctAnswer: bundesland.name,
-      options: allOptions,
-    });
-    setSelectedAnswer(null);
-    setIsCorrect(null);
+    console.warn('Could not generate quiz question after', maxAttempts, 'attempts');
   };
 
   useEffect(() => {
