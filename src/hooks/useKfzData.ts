@@ -98,6 +98,14 @@ export function useKfzData() {
       let topoJson = await getCachedData<KfzTopoJSON>(CACHE_KEYS.TOPO);
       let seats = await getCachedData<KreissitzData>(CACHE_KEYS.SEATS);
 
+      // Validate cached index has the expected structure
+      // If it's the old format, clear it
+      if (index && (!index.codeToIds || !index.features)) {
+        console.log('Clearing old format cache');
+        index = null;
+        await setCachedData(CACHE_KEYS.INDEX, null);
+      }
+
       // If not in cache or online, try to fetch fresh data
       if (!index || navigator.onLine) {
         try {
