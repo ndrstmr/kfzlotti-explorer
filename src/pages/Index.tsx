@@ -1,22 +1,29 @@
 import { useState, useEffect } from 'react';
-import { Search, HelpCircle, Info, Wifi, WifiOff } from 'lucide-react';
+import { Search, HelpCircle, Info, Wifi, WifiOff, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useKfzData } from '@/hooks/useKfzData';
 import { searchKfzCode, type SearchResult } from '@/lib/search';
 import { normalizeKfzCode } from '@/lib/normalize';
-import { recordSearch } from '@/lib/storage';
+import { recordSearch, getUserSettings } from '@/lib/storage';
 import { useOnlineStatus } from '@/lib/pwa';
 import ResultCards from '@/components/ResultCards';
 import InstallHint from '@/components/InstallHint';
 import { Link } from 'react-router-dom';
+import type { UserSettings } from '@/data/schema';
 
 const Index = () => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+  const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
   const { index, codeDetails, isLoading, error } = useKfzData();
   const isOnline = useOnlineStatus();
+
+  // Load user settings
+  useEffect(() => {
+    getUserSettings().then(setUserSettings);
+  }, []);
 
   // Search when query changes
   useEffect(() => {
@@ -53,12 +60,17 @@ const Index = () => {
               <span className="text-3xl">🚗</span>
               KFZlotti
             </h1>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               {isOnline ? (
                 <Wifi className="w-5 h-5 text-primary-foreground/80" />
               ) : (
                 <WifiOff className="w-5 h-5 text-primary-foreground/80" />
               )}
+              <Link to="/settings">
+                <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/20">
+                  <Settings className="w-5 h-5" />
+                </Button>
+              </Link>
               <Link to="/info">
                 <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/20">
                   <Info className="w-5 h-5" />

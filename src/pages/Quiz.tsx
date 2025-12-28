@@ -102,13 +102,14 @@ const Quiz = () => {
   }, [index]);
 
   const handleAnswer = async (answer: string) => {
-    if (selectedAnswer !== null) return;
+    if (selectedAnswer !== null || !question) return;
 
     setSelectedAnswer(answer);
-    const correct = answer === question?.correctAnswer;
+    const correct = answer === question.correctAnswer;
     setIsCorrect(correct);
 
-    await recordQuizAnswer(correct);
+    // Pass the kfzCode for error tracking
+    await recordQuizAnswer(correct, question.kfzCode);
     setScore(prev => ({
       correct: correct ? prev.correct + 1 : prev.correct,
       total: prev.total + 1,

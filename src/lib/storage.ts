@@ -4,13 +4,14 @@
  */
 
 import Dexie, { type Table } from 'dexie';
-import type { UserProgress, Badge, KfzIndex, KreissitzData } from '@/data/schema';
+import type { UserProgress, UserSettings, Badge, KfzIndex, KreissitzData } from '@/data/schema';
 import { BADGES } from '@/data/schema';
 
 // Database schema
 class KfzLottiDB extends Dexie {
   cache!: Table<{ key: string; data: any; updatedAt: string }>;
   progress!: Table<UserProgress>;
+  settings!: Table<UserSettings>;
 
   constructor() {
     super('KfzLottiDB');
@@ -18,6 +19,12 @@ class KfzLottiDB extends Dexie {
     this.version(1).stores({
       cache: 'key',
       progress: 'id',
+    });
+    
+    this.version(2).stores({
+      cache: 'key',
+      progress: 'id',
+      settings: 'id',
     });
   }
 }
@@ -76,7 +83,14 @@ const PROGRESS_ID = 'user-progress';
 export async function getUserProgress(): Promise<UserProgress> {
   try {
     const existing = await db.progress.get(PROGRESS_ID);
-    if (existing) return existing;
+    if (existing) {
+      // Ensure new fields exist for backwards compatibility
+      return {
+        ...existing,
+        quizErrors: existing.quizErrors || [],
+        quizCorrected: existing.quizCorrected || [],
+      };
+    }
     
     // Create default progress
     const defaultProgress: UserProgress = {
@@ -85,6 +99,8 @@ export async function getUserProgress(): Promise<UserProgress> {
       discoveredKreise: [],
       quizCorrect: 0,
       quizTotal: 0,
+      quizErrors: [],
+      quizCorrected: [],
       badges: [],
       currentStreak: 0,
       lastActiveDate: '',
@@ -102,6 +118,8 @@ export async function getUserProgress(): Promise<UserProgress> {
       discoveredKreise: [],
       quizCorrect: 0,
       quizTotal: 0,
+      quizErrors: [],
+      quizCorrected: [],
       badges: [],
       currentStreak: 0,
       lastActiveDate: '',
@@ -198,14 +216,20 @@ export async function recordSearch(kreisId: string): Promise<Badge[]> {
 }
 
 /**
- * Record a quiz answer
+ * Record a quiz answer with error tracking
  */
-export async function recordQuizAnswer(correct: boolean): Promise<Badge[]> {
+export async function recordQuizAnswer(correct: boolean, kfzCode?: string): Promise<Badge[]> {
   const progress = await getUserProgress();
   const newBadges: Badge[] = [];
   
   const newTotal = progress.quizTotal + 1;
   const newCorrect = correct ? progress.quizCorrect + 1 : progress.quizCorrect;
+  
+  // Track errors
+  let newErrors = [...progress.quizErrors];
+  if (!correct && kfzCode && !newErrors.includes(kfzCode)) {
+    newErrors.push(kfzCode);
+  }
   
   const existingBadgeIds = progress.badges.map(b => b.id);
   
@@ -224,8 +248,97 @@ export async function recordQuizAnswer(correct: boolean): Promise<Badge[]> {
   await updateProgress({
     quizTotal: newTotal,
     quizCorrect: newCorrect,
+    quizErrors: newErrors,
     badges: [...progress.badges, ...newBadges],
   });
   
   return newBadges;
+}
+
+/**
+ * Record a corrected answer in error quiz
+ */
+export async function recordCorrectedAnswer(kfzCode: string): Promise<void> {
+  const progress = await getUserProgress();
+  
+  // Remove from errors, add to corrected
+  const newErrors = progress.quizErrors.filter(c => c !== kfzCode);
+  const newCorrected = progress.quizCorrected.includes(kfzCode) 
+    ? progress.quizCorrected 
+    : [...progress.quizCorrected, kfzCode];
+  
+  await updateProgress({
+    quizErrors: newErrors,
+    quizCorrected: newCorrected,
+    quizCorrect: progress.quizCorrect + 1, // Count as correct now
+  });
+}
+
+/**
+ * Reset all quiz progress
+ */
+export async function resetQuizProgress(): Promise<void> {
+  await updateProgress({
+    quizCorrect: 0,
+    quizTotal: 0,
+    quizErrors: [],
+    quizCorrected: [],
+  });
+}
+
+/**
+ * Reset all user data
+ */
+export async function resetAllData(): Promise<void> {
+  await db.progress.clear();
+  await db.settings.clear();
+}
+
+// Settings management
+const SETTINGS_ID = 'user-settings';
+
+/**
+ * Get or create user settings
+ */
+export async function getUserSettings(): Promise<UserSettings> {
+  try {
+    const existing = await db.settings.get(SETTINGS_ID);
+    if (existing) return existing;
+    
+    // Create default settings
+    const defaultSettings: UserSettings = {
+      id: SETTINGS_ID,
+      displayName: '',
+      darkMode: 'system',
+      updatedAt: new Date().toISOString(),
+    };
+    
+    await db.settings.put(defaultSettings);
+    return defaultSettings;
+  } catch (error) {
+    console.error('Error getting settings:', error);
+    return {
+      id: SETTINGS_ID,
+      displayName: '',
+      darkMode: 'system',
+      updatedAt: new Date().toISOString(),
+    };
+  }
+}
+
+/**
+ * Update user settings
+ */
+export async function updateUserSettings(
+  updates: Partial<Omit<UserSettings, 'id'>>
+): Promise<UserSettings> {
+  const current = await getUserSettings();
+  const updated: UserSettings = {
+    ...current,
+    ...updates,
+    updatedAt: new Date().toISOString(),
+  };
+  
+  await db.settings.put(updated);
+  return updated;
 }
