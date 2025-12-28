@@ -104,6 +104,17 @@ export interface KreissitzData {
   }>;
 }
 
+// User settings stored in IndexedDB
+export interface UserSettings {
+  id: string;
+  /** Display name for personalized greetings */
+  displayName: string;
+  /** Dark mode preference */
+  darkMode: 'system' | 'light' | 'dark';
+  /** Timestamp */
+  updatedAt: string;
+}
+
 // User progress/gamification data stored in IndexedDB
 export interface UserProgress {
   id: string;
@@ -114,6 +125,10 @@ export interface UserProgress {
   /** Quiz stats */
   quizCorrect: number;
   quizTotal: number;
+  /** KFZ codes answered incorrectly in current session */
+  quizErrors: string[];
+  /** KFZ codes corrected in error quiz */
+  quizCorrected: string[];
   /** Earned badges */
   badges: Badge[];
   /** Daily streak */
