@@ -61,12 +61,16 @@ const Quiz = () => {
         getUserSettings()
       ]);
       setErrorCodes(progress.quizErrors);
-      setAvailableErrorCount(progress.quizErrors.length);
       setSettings(userSettings);
       setScore({ correct: progress.quizCorrect, total: progress.quizTotal });
     };
     loadData();
   }, []);
+
+  // Keep availableErrorCount in sync with errorCodes
+  useEffect(() => {
+    setAvailableErrorCount(errorCodes.length);
+  }, [errorCodes]);
 
   const generateQuestion = (forMode?: QuizMode) => {
     const currentMode = forMode ?? mode;
