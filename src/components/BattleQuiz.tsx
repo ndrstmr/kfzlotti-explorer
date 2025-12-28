@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { useKfzData } from '@/hooks/useKfzData';
 import { searchKfzCode, SearchResult } from '@/lib/search';
 import { getRandomBundeslaender, getBundeslandFromArs, getBundeslandFromShortName } from '@/data/bundeslaender';
+import { getUserSettings } from '@/lib/storage';
 
 interface BattleQuestion {
   kfzCode: string;
@@ -42,6 +43,18 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
   const [battleType, setBattleType] = useState<BattleType>('challenge');
   const [timeLimit, setTimeLimit] = useState(30);
   const [questionCount, setQuestionCount] = useState(20);
+  const [defaultPlayerName, setDefaultPlayerName] = useState('');
+  
+  // Load default player name from settings
+  useEffect(() => {
+    getUserSettings().then(settings => {
+      if (settings.displayName) {
+        setDefaultPlayerName(settings.displayName);
+        // Pre-fill if player name is empty
+        setPlayerNames(prev => prev[0] === '' ? [settings.displayName] : prev);
+      }
+    });
+  }, []);
   
   // Game state
   const [phase, setPhase] = useState<BattlePhase>('setup');
@@ -112,21 +125,24 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
     setPlayerNames(newNames);
   };
 
-  const canStart = playerNames.every(name => name.trim().length > 0);
+  const canStart = battleType === 'challenge' 
+    ? (playerNames[0].trim().length > 0 || defaultPlayerName.length > 0)
+    : playerNames.every(name => name.trim().length > 0);
 
   const startBattle = () => {
     const maxQuestions = battleMode === 'count' ? questionCount : 100; // Generate enough for time mode
     
     if (battleType === 'challenge') {
-      // Challenge mode: single player
+      // Challenge mode: single player - use default name if empty
       const generatedQuestions = generateQuestions(maxQuestions);
       
       if (generatedQuestions.length < (battleMode === 'count' ? questionCount : 10)) {
         return;
       }
       
+      const playerName = playerNames[0].trim() || defaultPlayerName || 'Spieler';
       setQuestions(generatedQuestions);
-      setPlayerScores([{ name: playerNames[0].trim(), correct: 0, wrong: 0, time: 0 }]);
+      setPlayerScores([{ name: playerName, correct: 0, wrong: 0, time: 0 }]);
     } else if (battleType === 'solo') {
       // Solo mode: each player gets their own random questions
       const playersWithQuestions = playerNames.map(name => {
