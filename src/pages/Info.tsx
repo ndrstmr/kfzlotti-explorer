@@ -126,11 +126,21 @@ const Info = () => {
         </section>
 
         {/* Disclaimer */}
-        <section className="bg-muted rounded-2xl p-4 text-center">
-          <p className="text-xs text-muted-foreground">
+        <section className="bg-muted rounded-2xl p-4 space-y-3">
+          <p className="text-xs text-muted-foreground text-center">
             💡 Ein KFZ-Kennzeichen zeigt nicht garantiert den aktuellen Wohnort. 
             Man kann sein Kennzeichen nach einem Umzug behalten!
           </p>
+          <div className="border-t border-border pt-3 space-y-2">
+            <p className="text-xs text-muted-foreground">
+              📚 <strong>Hinweis:</strong> Dies ist ein nicht-kommerzielles Projekt zu rein edukativen Zwecken. 
+              Es werden keine Einnahmen erzielt oder angestrebt.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              🤖 <strong>Disclaimer:</strong> Diese App wurde mit Unterstützung von künstlicher Intelligenz (KI) erstellt. 
+              Trotz sorgfältiger Prüfung können Fehler in den Daten nicht ausgeschlossen werden.
+            </p>
+          </div>
         </section>
       </main>
     </div>
