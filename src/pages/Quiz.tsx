@@ -171,14 +171,17 @@ const Quiz = () => {
       wrongCodes: correct ? prev.wrongCodes : [...prev.wrongCodes, question.kfzCode],
     }));
 
-    if (mode === 'errors' && correct) {
-      // Corrected an error!
-      await recordCorrectedAnswer(question.kfzCode);
-      setErrorCodes(prev => prev.filter(c => c !== question.kfzCode));
+    if (mode === 'errors') {
+      if (correct) {
+        // Corrected an error!
+        await recordCorrectedAnswer(question.kfzCode);
+        setErrorCodes(prev => prev.filter(c => c !== question.kfzCode));
+      }
+      // Wrong answers in error mode: code stays in error list, no stats change
     } else {
-      // Normal mode or wrong answer in error mode
+      // Normal mode
       await recordQuizAnswer(correct, question.kfzCode);
-      if (!correct && mode === 'normal') {
+      if (!correct) {
         setErrorCodes(prev => prev.includes(question.kfzCode) ? prev : [...prev, question.kfzCode]);
       }
     }
