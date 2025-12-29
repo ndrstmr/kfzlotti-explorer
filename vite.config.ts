@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => ({
       includeAssets: ["icons/*.png", "icons/*.svg", "data/*.json"],
       manifest: false, // Use our custom manifest.webmanifest
       workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,json,woff,woff2}"],
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,json,woff,woff2,webmanifest}"],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,

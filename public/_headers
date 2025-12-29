@@ -1,0 +1,35 @@
+# Security Headers für Netlify Deployment
+# https://docs.netlify.com/routing/headers/
+
+/*
+  # Verhindert MIME-Type Sniffing
+  X-Content-Type-Options: nosniff
+
+  # Verhindert Einbettung in iframes (Clickjacking-Schutz)
+  X-Frame-Options: DENY
+
+  # XSS-Schutz für ältere Browser
+  X-XSS-Protection: 1; mode=block
+
+  # Kontrolliert Referrer-Informationen
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Beschränkt Browser-Features (Datenschutz)
+  Permissions-Policy: geolocation=(self), camera=(), microphone=(), payment=(), usb=(), magnetometer=(), gyroscope=()
+
+  # Content Security Policy (Production - ohne unsafe-eval!)
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';
+
+  # HSTS - Erzwingt HTTPS (nur bei HTTPS-Deployment aktivieren)
+  # Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
+# Cache-Control für statische Assets
+/icons/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/data/*
+  Cache-Control: public, max-age=86400, must-revalidate
+
+# Service Worker sollte nie gecacht werden
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate

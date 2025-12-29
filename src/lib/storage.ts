@@ -7,9 +7,12 @@ import Dexie, { type Table } from 'dexie';
 import type { UserProgress, UserSettings, Badge, KfzIndex, KreissitzData } from '@/data/schema';
 import { BADGES } from '@/data/schema';
 
+// Type for cached data
+type CachedData = KfzIndex | KreissitzData | Record<string, unknown>;
+
 // Database schema
 class KfzLottiDB extends Dexie {
-  cache!: Table<{ key: string; data: any; updatedAt: string }>;
+  cache!: Table<{ key: string; data: CachedData; updatedAt: string }>;
   progress!: Table<UserProgress>;
   settings!: Table<UserSettings>;
 
@@ -226,7 +229,7 @@ export async function recordQuizAnswer(correct: boolean, kfzCode?: string): Prom
   const newCorrect = correct ? progress.quizCorrect + 1 : progress.quizCorrect;
   
   // Track errors
-  let newErrors = [...progress.quizErrors];
+  const newErrors = [...progress.quizErrors];
   if (!correct && kfzCode && !newErrors.includes(kfzCode)) {
     newErrors.push(kfzCode);
   }

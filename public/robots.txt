@@ -1,3 +1,6 @@
+# KFZlotti - Robots.txt
+# WICHTIG: Ersetze [YOUR-DOMAIN] mit deiner echten Domain
+
 User-agent: Googlebot
 Allow: /
 
@@ -12,3 +15,6 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+# Sitemap Location (ersetze [YOUR-DOMAIN] mit deiner Domain)
+Sitemap: [YOUR-DOMAIN]/sitemap.xml

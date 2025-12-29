@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, HelpCircle, Info, Wifi, WifiOff, Settings } from 'lucide-react';
+import { Search, HelpCircle, Info, Wifi, WifiOff, Settings, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useKfzData } from '@/hooks/useKfzData';
@@ -11,6 +11,7 @@ import ResultCards from '@/components/ResultCards';
 import InstallHint from '@/components/InstallHint';
 import { Link } from 'react-router-dom';
 import type { UserSettings } from '@/data/schema';
+import { siteConfig } from '@/config/site';
 
 const Index = () => {
   const [query, setQuery] = useState('');
@@ -50,8 +51,31 @@ const Index = () => {
     setQuery(value);
   };
 
+  // Check if legal info has placeholder values
+  const hasPlaceholderLegal =
+    siteConfig.legal.name.startsWith('[') ||
+    siteConfig.legal.street.startsWith('[') ||
+    siteConfig.legal.city.startsWith('[') ||
+    siteConfig.legal.email.startsWith('[');
+
   return (
     <div className="min-h-screen bg-background">
+      {/* Impressum Warning Banner */}
+      {hasPlaceholderLegal && (
+        <div className="bg-orange-500 text-white py-3 px-4 text-center">
+          <div className="container max-w-lg mx-auto flex items-center justify-center gap-2 text-sm">
+            <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+            <p>
+              <strong>Achtung:</strong> Bitte fülle das Impressum in{' '}
+              <code className="bg-white/20 px-1 rounded">src/config/site.ts</code> aus, bevor du die App veröffentlichst!{' '}
+              <Link to="/info" className="underline font-semibold hover:text-orange-100">
+                Mehr Infos →
+              </Link>
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="gradient-primary text-primary-foreground py-6 px-4 rounded-b-3xl shadow-lg">
         <div className="container max-w-lg mx-auto">
@@ -62,18 +86,18 @@ const Index = () => {
             </h1>
             <div className="flex items-center gap-1">
               {isOnline ? (
-                <Wifi className="w-5 h-5 text-primary-foreground/80" />
+                <Wifi className="w-5 h-5 text-primary-foreground/80" aria-label="Online" />
               ) : (
-                <WifiOff className="w-5 h-5 text-primary-foreground/80" />
+                <WifiOff className="w-5 h-5 text-primary-foreground/80" aria-label="Offline" />
               )}
               <Link to="/settings">
-                <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/20">
-                  <Settings className="w-5 h-5" />
+                <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/20" aria-label="Einstellungen öffnen">
+                  <Settings className="w-5 h-5" aria-hidden="true" />
                 </Button>
               </Link>
               <Link to="/info">
-                <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/20">
-                  <Info className="w-5 h-5" />
+                <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/20" aria-label="Informationen öffnen">
+                  <Info className="w-5 h-5" aria-hidden="true" />
                 </Button>
               </Link>
             </div>
@@ -91,6 +115,8 @@ const Index = () => {
             <Search className="w-6 h-6 text-muted-foreground" />
           </div>
           <Input
+            id="kfz-search"
+            name="kfz-search"
             type="text"
             placeholder="Gib ein Kürzel ein (z.B. HH, M, B)"
             value={query}

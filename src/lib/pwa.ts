@@ -7,17 +7,22 @@ import { useState, useEffect } from 'react';
 /**
  * Check if the app is running as an installed PWA
  */
+// Type augmentation for iOS-specific navigator property
+interface NavigatorStandalone extends Navigator {
+  standalone?: boolean;
+}
+
 export function isPwaInstalled(): boolean {
   // Check display-mode media query
   if (window.matchMedia('(display-mode: standalone)').matches) {
     return true;
   }
-  
+
   // iOS Safari standalone mode
-  if ((navigator as any).standalone === true) {
+  if ((navigator as NavigatorStandalone).standalone === true) {
     return true;
   }
-  
+
   return false;
 }
 
@@ -66,6 +71,12 @@ export function useOnlineStatus(): boolean {
   return isOnline;
 }
 
+// Type for BeforeInstallPromptEvent
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
 /**
  * Hook for checking if app should show install prompt
  */
@@ -75,7 +86,7 @@ export function useInstallPrompt(): {
   isIos: boolean;
   promptInstall: () => Promise<boolean>;
 } {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   
   useEffect(() => {

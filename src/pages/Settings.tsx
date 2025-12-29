@@ -102,8 +102,8 @@ const Settings = () => {
         <div className="container max-w-lg mx-auto">
           <div className="flex items-center gap-4">
             <Link to="/">
-              <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/20">
-                <ArrowLeft className="w-6 h-6" />
+              <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/20" aria-label="Zurück zur Startseite">
+                <ArrowLeft className="w-6 h-6" aria-hidden="true" />
               </Button>
             </Link>
             <h1 className="text-2xl font-display font-bold">⚙️ Einstellungen</h1>
@@ -125,6 +125,7 @@ const Settings = () => {
             <Label htmlFor="displayName">Dein Name</Label>
             <Input
               id="displayName"
+              name="displayName"
               placeholder="z.B. Max"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}

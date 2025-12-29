@@ -203,7 +203,7 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
       timerRef.current = setTimeout(() => {
         setTimeRemaining(prev => prev - 1);
       }, 1000);
-      
+
       return () => {
         if (timerRef.current) clearTimeout(timerRef.current);
       };
@@ -211,17 +211,18 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
       // Time's up for current player
       finishCurrentPlayer();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, battleMode, timeRemaining]);
 
-  const finishCurrentPlayer = () => {
+  const finishCurrentPlayer = useCallback(() => {
     const elapsed = Date.now() - playerStartTime;
-    
+
     setPlayerScores(prev => {
       const newScores = [...prev];
       newScores[currentPlayerIndex].time = elapsed;
       return newScores;
     });
-    
+
     if (currentPlayerIndex < playerNames.length - 1) {
       // Show handover screen for multiplayer modes
       if (battleType !== 'challenge') {
@@ -234,7 +235,7 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
       // All players done
       setPhase('results');
     }
-  };
+  }, [playerStartTime, currentPlayerIndex, playerNames.length, battleType]);
 
   const startNextPlayer = () => {
     const nextPlayerIndex = currentPlayerIndex + 1;
@@ -435,6 +436,8 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
                     {idx + 1}
                   </div>
                   <Input
+                    id={`player-name-${idx}`}
+                    name={`player-name-${idx}`}
                     placeholder={battleType === 'challenge' ? 'Dein Name' : `Spieler ${idx + 1}`}
                     value={name}
                     onChange={(e) => updatePlayerName(idx, e.target.value)}

@@ -175,6 +175,7 @@ const Quiz = () => {
     if (index && !showModeSelect) {
       generateQuestion();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index]);
 
   // Auto-start error mode if coming from settings
@@ -182,6 +183,7 @@ const Quiz = () => {
     if (index && initialMode === 'errors' && errorCodes.length > 0) {
       startQuiz('errors');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index, errorCodes]);
 
   const handleAnswer = async (answer: string) => {
@@ -256,8 +258,8 @@ const Quiz = () => {
           <div className="container max-w-lg mx-auto">
             <div className="flex items-center justify-between">
               <Link to="/">
-                <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/20">
-                  <ArrowLeft className="w-6 h-6" />
+                <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/20" aria-label="Zurück zur Startseite">
+                  <ArrowLeft className="w-6 h-6" aria-hidden="true" />
                 </Button>
               </Link>
               <h1 className="text-2xl font-display font-bold flex items-center gap-2">
@@ -390,8 +392,8 @@ const Quiz = () => {
           <div className="container max-w-lg mx-auto">
             <div className="flex items-center justify-between">
               <Link to="/">
-                <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/20">
-                  <ArrowLeft className="w-6 h-6" />
+                <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/20" aria-label="Zurück zur Startseite">
+                  <ArrowLeft className="w-6 h-6" aria-hidden="true" />
                 </Button>
               </Link>
               <h1 className="text-2xl font-display font-bold">🎯 Quiz</h1>
@@ -471,13 +473,14 @@ const Quiz = () => {
       <header className="gradient-fun text-primary-foreground py-6 px-4 rounded-b-3xl shadow-lg">
         <div className="container max-w-lg mx-auto">
           <div className="flex items-center justify-between">
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               className="text-primary-foreground hover:bg-primary-foreground/20"
               onClick={() => setShowModeSelect(true)}
+              aria-label="Zurück zur Modusauswahl"
             >
-              <ArrowLeft className="w-6 h-6" />
+              <ArrowLeft className="w-6 h-6" aria-hidden="true" />
             </Button>
             <div className="text-center">
               <h1 className="text-2xl font-display font-bold flex items-center gap-2">

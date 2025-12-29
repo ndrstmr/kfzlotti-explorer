@@ -106,7 +106,7 @@ export function getPolygonCentroid(
  * Convert TopoJSON to GeoJSON features
  */
 export async function topoJsonToGeoJson(
-  topoJson: any,
+  topoJson: { objects: Record<string, unknown>; [key: string]: unknown },
   objectName: string = 'kreise'
 ): Promise<GeoJSON.FeatureCollection> {
   const topojsonClient = await import('topojson-client');
@@ -133,7 +133,7 @@ export async function topoJsonToGeoJson(
  * Get a single feature from TopoJSON by ID
  */
 export async function getFeatureById(
-  topoJson: any,
+  topoJson: { objects: Record<string, unknown>; [key: string]: unknown },
   featureId: string,
   objectName: string = 'kreise'
 ): Promise<GeoJSON.Feature | null> {
