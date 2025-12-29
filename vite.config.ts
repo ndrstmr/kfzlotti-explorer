@@ -17,8 +17,15 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["icons/*.png", "icons/*.svg", "data/*.json"],
       manifest: false, // Use our custom manifest.webmanifest
+      devOptions: {
+        enabled: true,
+        type: 'module',
+      },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,json,woff,woff2,webmanifest}"],
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/data\//],
+        cleanupOutdatedCaches: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
