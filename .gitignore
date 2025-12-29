@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Claude Code specific files
+CLAUDE.md
+CODE_REVIEW.md
