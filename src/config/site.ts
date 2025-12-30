@@ -14,10 +14,10 @@ export const siteConfig = {
 
   // Impressum / Legal Notice
   legal: {
-    name: "[Dein Name]",
-    street: "[Straße und Hausnummer]",
-    city: "[PLZ Ort]",
-    email: "[deine@email.de]",
+    name: "Andreas Teumer",
+    street: "Am Ehrenmal 12",
+    city: "22175 Hamburg",
+    email: "ndrstmr@outlook.de",
   },
 
   // Optional: Links
@@ -27,7 +27,7 @@ export const siteConfig = {
   },
 
   // App Version
-  version: "2.2.0",
+  version: "2.2.1",
 } as const;
 
 export type SiteConfig = typeof siteConfig;

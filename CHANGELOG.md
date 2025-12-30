@@ -7,6 +7,107 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [2.2.1] - 2025-12-30
+
+**🐛 Critical PWA Bugfixes**
+
+Behebt zwei kritische Bugs die das Update-System und SPA-Routing in der installierten PWA betreffen.
+
+### 🐛 Bug Fixes
+
+#### Update-Installation Crash
+- **Fixed:** App stürzte beim Update ab und musste manuell neu gestartet werden
+- **Root Cause:** Race Condition zwischen Service Worker Aktivierung und Page Reload
+- **Solution:**
+  - UpdateContext nutzt jetzt async/await für Service Worker Update
+  - 100ms Delay für vollständige Service Worker Aktivierung
+  - Error Handling mit Fallback zu window.reload()
+  - Service Worker verwendet `skipWaiting: true` für sofortige Aktivierung
+  - `clientsClaim: true` übernimmt alle Tabs sofort
+
+#### SPA-Routing 404 Fehler
+- **Fixed:** Battle-Modus und andere Quiz-Routes zeigten "Seite nicht gefunden" bei Reload
+- **Root Cause:** Service Worker hatte keine explizite Navigation-Strategie für SPA-Routes
+- **Solution:**
+  - `navigateFallbackAllowlist` statt `navigateFallbackDenylist` (expliziter)
+  - Dediziertes Runtime-Caching für Navigation-Requests
+  - `NetworkFirst` Strategie mit 3s Timeout für Seiten
+  - Alle React Router Routes funktionieren jetzt offline
+
+### 🔧 Technische Änderungen
+
+#### UpdateContext.tsx
+```typescript
+const installUpdate = useCallback(async () => {
+  try {
+    if (updateSW) {
+      await updateSW(true);  // Wait for activation
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    window.location.reload();  // Hard reload
+  } catch (error) {
+    console.error('Update installation failed:', error);
+    window.location.reload();  // Fallback
+  }
+}, [updateSW]);
+```
+
+#### main.tsx
+- `immediate: true` - Service Worker lädt sofort
+- Automatische Update-Checks alle 60 Sekunden
+- Besseres Error-Logging
+
+#### vite.config.ts
+**Workbox-Konfiguration:**
+- `skipWaiting: true` - Neuer SW aktiviert sofort
+- `clientsClaim: true` - Übernimmt alle Clients instant
+- `navigateFallbackAllowlist: [/^\/(?!data\/)/]` - Explizit alle Routes außer /data/
+- Navigation Runtime Caching:
+  ```typescript
+  {
+    urlPattern: ({ request, url }) => {
+      return request.mode === 'navigate' && !url.pathname.startsWith('/data/');
+    },
+    handler: 'NetworkFirst',
+    options: {
+      cacheName: 'pages-cache',
+      networkTimeoutSeconds: 3,
+    },
+  }
+  ```
+- Removed: Google Fonts Caching (nicht mehr benötigt - Fonts lokal)
+- Added: `.ttf` zu globPatterns für lokale Fonts
+
+### 📊 Impact
+
+**User Experience:**
+- ✅ Updates funktionieren jetzt ohne Crash
+- ✅ Battle-Modus ist erreichbar nach Reload
+- ✅ Alle Quiz-Routes funktionieren offline
+- ✅ Keine "404 Seite nicht gefunden" mehr
+
+**Technisch:**
+- ✅ Robusteres Update-System
+- ✅ Bessere SPA-Unterstützung in PWA
+- ✅ Schnellere Service Worker Aktivierung
+
+### ⚠️ Breaking Changes
+
+**KEINE** - Alle Änderungen sind abwärtskompatibel!
+
+### 🔄 Migration
+
+**Für Nutzer:** Automatisches Update
+- Update wird beim nächsten App-Start angeboten
+- "Jetzt aktualisieren" installiert v2.2.1
+- Keine manuelle Aktion erforderlich
+
+**Für Entwickler:** Keine Änderungen nötig
+- Workbox-Config ist jetzt robuster
+- Service Worker API bleibt gleich
+
+---
+
 ## [2.2.0] - 2025-12-30
 
 **⚡ Reaktive Settings & Persistenz-Fix**
@@ -443,6 +544,7 @@ Keine unveröffentlichten Änderungen.
 
 ---
 
+[2.2.1]: https://github.com/ndrstmr/kfzlotti-explorer/releases/tag/v2.2.1
 [2.2.0]: https://github.com/ndrstmr/kfzlotti-explorer/releases/tag/v2.2.0
 [2.1.0]: https://github.com/ndrstmr/kfzlotti-explorer/releases/tag/v2.1.0
 [2.0.0]: https://github.com/ndrstmr/kfzlotti-explorer/releases/tag/v2.0.0
