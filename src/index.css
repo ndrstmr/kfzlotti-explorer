@@ -1,3 +1,6 @@
+/* Local fonts for offline-first support */
+@import './fonts.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

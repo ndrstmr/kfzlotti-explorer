@@ -17,8 +17,8 @@ const DIST_INDEX = join(process.cwd(), 'dist', 'index.html');
 // Development CSP (mit unsafe-eval für Vite HMR)
 const DEV_CSP = /content="default-src 'self'; script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval';[^"]+"/;
 
-// Production CSP (ohne unsafe-eval - strikte Sicherheit)
-const PROD_CSP = `content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';"`;
+// Production CSP (ohne unsafe-eval - strikte Sicherheit, self-hosted fonts)
+const PROD_CSP = `content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';"`;
 
 console.log('🔒 Fixing Production CSP in dist/index.html...');
 

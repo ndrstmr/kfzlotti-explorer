@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { KfzIndex, KfzTopoJSON, KreissitzData, CodeDetailsData } from '@/data/schema';
-import { getCachedData, setCachedData, getCacheMetadata, migrateDataSchema, CACHE_KEYS } from '@/lib/storage';
+import { getCachedData, setCachedData, getCacheMetadata, migrateDataSchema, getUserSettings, CACHE_KEYS } from '@/lib/storage';
 
 // Embedded fallback data for offline-first experience
 // This contains ALL districts (generated at build time)
@@ -36,6 +36,10 @@ export function useKfzData() {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
+      // Check if user has enabled offline-only mode
+      const settings = await getUserSettings();
+      const isOfflineModeEnabled = settings?.offlineMode || false;
+
       // Run schema migration check first
       // This detects and clears old/incompatible cache formats
       await migrateDataSchema();
@@ -48,8 +52,8 @@ export function useKfzData() {
       // Get cache metadata for version checking
       const cachedMeta = await getCacheMetadata(CACHE_KEYS.INDEX);
 
-      // If online, check for newer version
-      if (navigator.onLine) {
+      // If online AND offline mode not enabled, check for newer version
+      if (navigator.onLine && !isOfflineModeEnabled) {
         try {
           const indexResponse = await fetch('/data/index.transformed.json', {
             cache: 'no-cache',
@@ -82,7 +86,7 @@ export function useKfzData() {
         }
       }
 
-      if (!topoJson || navigator.onLine) {
+      if (!topoJson || (navigator.onLine && !isOfflineModeEnabled)) {
         try {
           const topoResponse = await fetch('/data/kfz250.topo.json');
           if (topoResponse.ok) {
@@ -95,7 +99,7 @@ export function useKfzData() {
       }
 
       // Seats are optional
-      if (!seats || navigator.onLine) {
+      if (!seats || (navigator.onLine && !isOfflineModeEnabled)) {
         try {
           const seatsResponse = await fetch('/data/seats.json');
           if (seatsResponse.ok) {
@@ -111,7 +115,7 @@ export function useKfzData() {
 
       // Code details are optional
       let codeDetails = await getCachedData<CodeDetailsData>(CACHE_KEYS.CODE_DETAILS);
-      if (!codeDetails || navigator.onLine) {
+      if (!codeDetails || (navigator.onLine && !isOfflineModeEnabled)) {
         try {
           const codeDetailsResponse = await fetch('/data/code-details.json');
           if (codeDetailsResponse.ok) {

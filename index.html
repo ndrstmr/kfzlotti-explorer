@@ -7,8 +7,8 @@
     <!-- Security: Content Security Policy
          HINWEIS: Für Development ist 'unsafe-eval' erlaubt (Vite benötigt es).
          In Production verwenden HTTP Headers (ohne unsafe-eval) eine striktere CSP.
-         Wenn die Browser-Warnung stört, kann diese Meta-Tag auskommentiert werden. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; base-uri 'self'; form-action 'self';">
+         Fonts sind jetzt self-hosted, keine externen Font-Domains mehr benötigt. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https:; connect-src 'self'; base-uri 'self'; form-action 'self';">
 
     <!-- App Title & Description -->
     <title>KFZlotti: Kürzel rein, Kreis raus!</title>
@@ -37,14 +37,8 @@
     <meta name="twitter:title" content="KFZlotti: Kürzel rein, Kreis raus!" />
     <meta name="twitter:description" content="Entdecke deutsche KFZ-Kennzeichen! Kindgerechte PWA zum Lernen." />
 
-    <!-- Resource Hints: DNS prefetch as fallback for older browsers -->
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-
-    <!-- Fonts - Playful & Kid-friendly -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Fonts are now self-hosted for offline-first PWA support -->
+    <!-- Font definitions loaded via src/fonts.css -->
 
     <!-- Preload critical resources -->
     <link rel="preload" href="/data/index.json" as="fetch" crossorigin="anonymous" />

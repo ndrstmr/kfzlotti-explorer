@@ -1,0 +1,70 @@
+/**
+ * Local Font Definitions
+ * Self-hosted Google Fonts for offline-first PWA support
+ */
+
+/* Fredoka - Display/Heading Font */
+@font-face {
+  font-family: 'Fredoka';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/fredoka-400.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Fredoka';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/fredoka-500.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Fredoka';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/fredoka-600.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Fredoka';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/fredoka-700.ttf') format('truetype');
+}
+
+/* Nunito - Body Font */
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/nunito-400.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/nunito-500.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/nunito-600.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/nunito-700.ttf') format('truetype');
+}

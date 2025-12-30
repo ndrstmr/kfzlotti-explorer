@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, User, Moon, Sun, Monitor, RotateCcw, Trash2, Trophy, AlertTriangle, RefreshCw, Loader2 } from 'lucide-react';
+import { ArrowLeft, User, Moon, Sun, Monitor, RotateCcw, Trash2, Trophy, AlertTriangle, RefreshCw, Loader2, WifiOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Link } from 'react-router-dom';
 import {
   getUserSettings,
@@ -82,6 +83,18 @@ const Settings = () => {
     toast({
       title: 'Design geändert',
       description: mode === 'system' ? 'Folgt dem System' : mode === 'dark' ? 'Dunkelmodus aktiviert' : 'Hellmodus aktiviert',
+    });
+  };
+
+  const handleOfflineModeChange = async (enabled: boolean) => {
+    await updateUserSettings({ offlineMode: enabled });
+    setSettings(prev => prev ? { ...prev, offlineMode: enabled } : null);
+
+    toast({
+      title: enabled ? "Offline-Modus aktiviert" : "Offline-Modus deaktiviert",
+      description: enabled
+        ? "Die App verwendet jetzt nur noch lokale Daten und macht keine Netzwerk-Anfragen."
+        : "Die App aktualisiert Daten wieder automatisch wenn online.",
     });
   };
 
@@ -175,6 +188,29 @@ const Settings = () => {
               <Monitor className="w-5 h-5" />
               <span className="text-xs">System</span>
             </Button>
+          </div>
+        </section>
+
+        {/* Offline Mode */}
+        <section className="bg-card rounded-2xl p-6 shadow-card space-y-4">
+          <h2 className="text-lg font-display font-bold flex items-center gap-2">
+            <WifiOff className="w-5 h-5 text-primary" />
+            Offline-Modus
+          </h2>
+          <div className="flex items-center justify-between">
+            <div className="flex-1 space-y-1">
+              <Label htmlFor="offline-mode" className="text-base font-medium cursor-pointer">
+                Nur Offline verwenden
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Deaktiviert alle Netzwerk-Anfragen. Die App verwendet nur lokale Daten.
+              </p>
+            </div>
+            <Switch
+              id="offline-mode"
+              checked={settings?.offlineMode || false}
+              onCheckedChange={handleOfflineModeChange}
+            />
           </div>
         </section>
 

@@ -148,6 +148,8 @@ export interface UserSettings {
   displayName: string;
   /** Dark mode preference */
   darkMode: 'system' | 'light' | 'dark';
+  /** Force offline mode - disable all network requests */
+  offlineMode?: boolean;
   /** Timestamp */
   updatedAt: string;
 }

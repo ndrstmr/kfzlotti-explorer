@@ -85,7 +85,7 @@ const Index = () => {
               KFZlotti
             </h1>
             <div className="flex items-center gap-1">
-              {isOnline ? (
+              {isOnline && !userSettings?.offlineMode ? (
                 <Wifi className="w-5 h-5 text-primary-foreground/80" aria-label="Online" />
               ) : (
                 <WifiOff className="w-5 h-5 text-primary-foreground/80" aria-label="Offline" />

@@ -4,6 +4,7 @@
  */
 
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import { getUserSettings } from '@/lib/storage';
 
 interface UpdateContextType {
   updateAvailable: boolean;
@@ -32,10 +33,22 @@ export function UpdateProvider({ children, updateSW }: UpdateProviderProps) {
   useEffect(() => {
     const loadVersion = async () => {
       try {
-        const response = await fetch('/data/index.transformed.json');
+        // Check if offline mode is enabled
+        const settings = await getUserSettings();
+        if (settings?.offlineMode) {
+          console.log('Offline mode enabled - skipping version check');
+          return;
+        }
+
+        // Try transformed version first (production), fallback to raw (dev)
+        let response = await fetch('/data/index.transformed.json');
+        if (!response.ok) {
+          response = await fetch('/data/index.json');
+        }
+
         if (response.ok) {
           const data = await response.json();
-          setDataVersion(data.dataVersion || data.generated);
+          setDataVersion(data.dataVersion || data.version || data.generated);
         }
       } catch (error) {
         console.error('Failed to load data version:', error);
@@ -59,6 +72,13 @@ export function UpdateProvider({ children, updateSW }: UpdateProviderProps) {
   }, []);
 
   const checkForUpdates = useCallback(async () => {
+    // Check if offline mode is enabled
+    const settings = await getUserSettings();
+    if (settings?.offlineMode) {
+      console.log('Offline mode enabled - updates disabled');
+      return;
+    }
+
     if (!navigator.onLine) {
       console.log('Offline - cannot check for updates');
       return;
@@ -72,17 +92,26 @@ export function UpdateProvider({ children, updateSW }: UpdateProviderProps) {
         await registration.update();
       }
 
-      // Check data version
-      const response = await fetch('/data/index.transformed.json', {
+      // Check data version - try transformed first, fallback to raw
+      let response = await fetch('/data/index.transformed.json', {
         cache: 'no-cache',
         headers: {
           'Cache-Control': 'no-cache',
         },
       });
 
+      if (!response.ok) {
+        response = await fetch('/data/index.json', {
+          cache: 'no-cache',
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+        });
+      }
+
       if (response.ok) {
         const data = await response.json();
-        const remoteVersion = data.dataVersion || data.generated;
+        const remoteVersion = data.dataVersion || data.version || data.generated;
 
         if (remoteVersion !== dataVersion) {
           setNewVersion(remoteVersion);
