@@ -13,6 +13,11 @@ dist-ssr
 dev-dist
 *.local
 
+# Environment variables (contains personal data)
+.env
+.env.local
+.env.*.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

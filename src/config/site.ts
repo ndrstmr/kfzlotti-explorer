@@ -1,11 +1,11 @@
 /**
  * Site Configuration
  *
- * Diese Datei enthält alle konfigurierbaren Werte für deine Installation.
- * Ersetze die Platzhalter mit deinen echten Daten, bevor du die App veröffentlichst.
+ * Diese Datei liest Konfigurationswerte aus Environment Variables (.env).
+ * Kopiere .env.example nach .env und fülle deine persönlichen Daten ein.
  *
- * This file contains all configurable values for your installation.
- * Replace the placeholders with your real data before publishing the app.
+ * This file reads configuration from environment variables (.env).
+ * Copy .env.example to .env and fill in your personal data.
  */
 
 export const siteConfig = {
@@ -13,16 +13,17 @@ export const siteConfig = {
   appName: "KFZlotti",
 
   // Impressum / Legal Notice
+  // Values loaded from .env file (not in Git!)
   legal: {
-    name: "Andreas Teumer",
-    street: "Am Ehrenmal 12",
-    city: "22175 Hamburg",
-    email: "ndrstmr@outlook.de",
+    name: import.meta.env.VITE_LEGAL_NAME || "[Dein Name]",
+    street: import.meta.env.VITE_LEGAL_STREET || "[Straße und Hausnummer]",
+    city: import.meta.env.VITE_LEGAL_CITY || "[PLZ Ort]",
+    email: import.meta.env.VITE_LEGAL_EMAIL || "[deine@email.de]",
   },
 
   // Optional: Links
   links: {
-    github: "https://github.com/ndrstmr/kfzlotti-explorer",
+    github: import.meta.env.VITE_GITHUB_URL || "https://github.com/yourusername/kfzlotti-explorer",
     // Add more links as needed
   },
 

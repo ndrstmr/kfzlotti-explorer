@@ -59,6 +59,10 @@ npm install
 # oder
 bun install
 
+# Persönliche Konfiguration (wichtig!)
+cp .env.example .env
+# Bearbeite .env und füge deine persönlichen Daten ein (Impressum)
+
 # Entwicklungsserver starten
 npm run dev
 # oder
@@ -66,6 +70,25 @@ bun dev
 ```
 
 Die App ist dann unter `http://localhost:8080` erreichbar.
+
+### ⚙️ Konfiguration
+
+**Wichtig:** Vor dem ersten Build musst du die `.env` Datei konfigurieren!
+
+```bash
+# 1. Kopiere die Beispiel-Datei
+cp .env.example .env
+
+# 2. Bearbeite .env und fülle deine persönlichen Daten ein:
+VITE_LEGAL_NAME="Dein Name"
+VITE_LEGAL_STREET="Deine Straße 123"
+VITE_LEGAL_CITY="12345 Deine Stadt"
+VITE_LEGAL_EMAIL="deine@email.de"
+VITE_GITHUB_URL="https://github.com/deinusername/kfzlotti-explorer"
+```
+
+**Wichtig:** Die `.env` Datei wird **nicht** ins Git committed (sie steht in `.gitignore`).
+Jeder Entwickler muss seine eigene `.env` Datei erstellen.
 
 ### Verfügbare Befehle
 
