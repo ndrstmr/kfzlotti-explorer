@@ -7,6 +7,91 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [2.2.0] - 2025-12-30
+
+**⚡ Reaktive Settings & Persistenz-Fix**
+
+Diese Version behebt Persistenz-Probleme mit Einstellungen und führt ein reaktives Settings-System ein, das sofortige Updates über alle Komponenten hinweg ermöglicht.
+
+### ✨ Neue Features
+
+#### Reaktives Settings-System
+- **SettingsContext** für App-weites Settings State Management
+- **Sofortige Updates** in allen Komponenten ohne Component-Remount
+- **Single Source of Truth** für alle Nutzer-Einstellungen
+
+**Neue Dateien:**
+- `src/contexts/SettingsContext.tsx` - Zentraler Settings Context mit reaktivem State
+
+### 🐛 Bug Fixes
+
+#### Dark Mode Persistenz
+- **Fixed:** Dark Mode wurde nicht beim App-Start angewendet
+- **Fixed:** Flash von hellem Theme beim Laden
+- Lösung: SettingsContext lädt und wendet Dark Mode sofort beim App-Mount an
+
+#### Display Name Konsistenz
+- **Fixed:** Display Name aktualisierte sich nicht über Komponenten hinweg
+- **Fixed:** Name erschien nicht sofort in Quiz nach Änderung in Settings
+- Lösung: Reaktiver Context benachrichtigt alle Komponenten bei Änderungen
+
+#### Offline-Modus UI
+- **Fixed:** WiFi-Icon reagierte nicht auf Offline-Modus Toggle
+- Lösung: useSettings() Hook macht UI-Elemente reaktiv
+
+### 🔧 Technische Änderungen
+
+#### Aktualisierte Komponenten
+- `main.tsx`: SettingsProvider umschließt gesamte App
+- `App.tsx`: Dark Mode useEffect entfernt (vom Context übernommen)
+- `Settings.tsx`: Nutzt Context-Funktionen statt direkter DB-Updates
+- `Index.tsx`: WiFi-Icon reagiert reaktiv auf offlineMode
+- `Quiz.tsx`: DisplayName-State aus Context statt lokalem State
+- `BattleQuiz.tsx`: Spielername-Vorbelegung reaktiv
+
+#### Context API
+```typescript
+// SettingsContext bietet:
+- settings: UserSettings | null          // Reaktiver State
+- isLoading: boolean                      // Loading Indicator
+- updateDarkMode(mode): Promise<void>     // Dark Mode ändern
+- updateDisplayName(name): Promise<void>  // Name ändern
+- updateOfflineMode(enabled): Promise<void> // Offline-Modus togglen
+- refreshSettings(): Promise<void>        // Settings neu laden
+```
+
+### 📊 Vorteile
+
+**User Experience:**
+- ✅ Dark Mode sofort beim App-Start (kein Flash)
+- ✅ Display Name Updates sofort in allen Quiz-Modi sichtbar
+- ✅ Offline-Modus Toggle wirkt instant auf alle UI-Indikatoren
+- ✅ Einstellungen bleiben konsistent über Tabs und Refreshes
+
+**Developer Experience:**
+- ✅ Einfaches Hook-API: `const { settings } = useSettings()`
+- ✅ Automatische Persistierung in IndexedDB
+- ✅ Automatische Benachrichtigung aller Subscriber
+- ✅ Kein manuelles State Management mehr nötig
+
+### ⚠️ Breaking Changes
+
+**KEINE** - Alle Änderungen sind abwärtskompatibel!
+
+### 🔄 Migration
+
+**Für Nutzer:** Keine Aktion erforderlich
+- Bestehende Einstellungen werden automatisch geladen
+- Context übernimmt nahtlos bisheriges Verhalten
+- Alle Features funktionieren wie zuvor, nur konsistenter
+
+**Für Entwickler:** API bleibt gleich
+- `getUserSettings()` funktioniert weiterhin (für non-reactive Reads)
+- Neue Context API optional nutzbar
+- Keine Breaking Changes in bestehenden Hooks
+
+---
+
 ## [2.0.0] - 2025-12-30
 
 **🎉 Major-Release - Performance & Update-System!**
@@ -358,6 +443,7 @@ Keine unveröffentlichten Änderungen.
 
 ---
 
+[2.2.0]: https://github.com/ndrstmr/kfzlotti-explorer/releases/tag/v2.2.0
 [2.1.0]: https://github.com/ndrstmr/kfzlotti-explorer/releases/tag/v2.1.0
 [2.0.0]: https://github.com/ndrstmr/kfzlotti-explorer/releases/tag/v2.0.0
 [1.0.0]: https://github.com/ndrstmr/kfzlotti-explorer/releases/tag/v1.0.0
