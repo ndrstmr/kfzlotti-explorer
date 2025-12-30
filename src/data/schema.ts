@@ -54,6 +54,10 @@ export interface KfzIndex {
   generated: string;
   /** Source attribution */
   source: string;
+  /** Build-time version metadata (YYYY-MM-DD-HHmmss format) */
+  dataVersion?: string;
+  /** SHA-256 hash of source data (first 8 chars) */
+  buildHash?: string;
   /** Map of KFZ code (uppercase) to feature IDs */
   codeToIds: Record<string, string[]>;
   /** Map of feature ID to basic info for quick lookup */
@@ -63,6 +67,39 @@ export interface KfzIndex {
     kfzCodes: string[];
     center: [number, number];
   }>;
+}
+
+/**
+ * Extended district feature info (v2) - for future extensibility
+ * All new fields are optional to maintain backwards compatibility
+ */
+export interface DistrictFeatureV2 {
+  /** Official name of the district */
+  name: string;
+  /** Amtlicher Regionalschlüssel */
+  ars: string;
+  /** All KFZ codes for this district */
+  kfzCodes: string[];
+  /** Center coordinates [lng, lat] */
+  center: [number, number];
+
+  // V2 fields - all optional for backwards compatibility
+  /** Name of the Kreisstadt (administrative seat) */
+  kreisstadt?: string;
+  /** Coordinates of the Kreisstadt [lng, lat] */
+  kreisstadtCoords?: [number, number];
+  /** Population count (latest available data) */
+  population?: number;
+  /** Area in square kilometers */
+  areaKm2?: number;
+  /** Bundesland code (derived from ARS first 2 digits) */
+  bundesland?: string;
+  /** Bundesland full name */
+  bundeslandName?: string;
+  /** Website URL of the district administration */
+  website?: string;
+  /** Wikidata QID for additional data linking */
+  wikidataId?: string;
 }
 
 // Code details: origin/meaning of each KFZ code

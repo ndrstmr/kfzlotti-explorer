@@ -10,22 +10,39 @@ import { BADGES } from '@/data/schema';
 // Type for cached data
 type CachedData = KfzIndex | KreissitzData | Record<string, unknown>;
 
+// Cache entry with version metadata
+interface CachedDataEntry {
+  key: string;
+  data: CachedData;
+  dataVersion?: string;
+  buildHash?: string;
+  updatedAt: string;
+  expiresAt?: string;
+}
+
 // Database schema
 class KfzLottiDB extends Dexie {
-  cache!: Table<{ key: string; data: CachedData; updatedAt: string }>;
+  cache!: Table<CachedDataEntry>;
   progress!: Table<UserProgress>;
   settings!: Table<UserSettings>;
 
   constructor() {
     super('KfzLottiDB');
-    
+
     this.version(1).stores({
       cache: 'key',
       progress: 'id',
     });
-    
+
     this.version(2).stores({
       cache: 'key',
+      progress: 'id',
+      settings: 'id',
+    });
+
+    // Version 3: Add version metadata and expiration
+    this.version(3).stores({
+      cache: 'key, dataVersion, expiresAt',
       progress: 'id',
       settings: 'id',
     });
@@ -43,12 +60,26 @@ export const CACHE_KEYS = {
 } as const;
 
 /**
- * Get cached data
+ * Get cached data with expiration check
  */
-export async function getCachedData<T>(key: string): Promise<T | null> {
+export async function getCachedData<T>(
+  key: string,
+  options?: { ignoreExpired?: boolean }
+): Promise<T | null> {
   try {
     const cached = await db.cache.get(key);
-    return cached?.data || null;
+    if (!cached) return null;
+
+    // Check expiration
+    if (cached.expiresAt && !options?.ignoreExpired) {
+      if (new Date(cached.expiresAt) < new Date()) {
+        console.log(`Cache expired for ${key}`);
+        await db.cache.delete(key);
+        return null;
+      }
+    }
+
+    return cached.data as T;
   } catch (error) {
     console.error('Error reading from cache:', error);
     return null;
@@ -56,17 +87,54 @@ export async function getCachedData<T>(key: string): Promise<T | null> {
 }
 
 /**
- * Set cached data
+ * Set cached data with version metadata and TTL
  */
-export async function setCachedData<T>(key: string, data: T): Promise<void> {
+export async function setCachedData<T>(
+  key: string,
+  data: T,
+  options?: {
+    dataVersion?: string;
+    buildHash?: string;
+    ttlSeconds?: number;
+  }
+): Promise<void> {
   try {
-    await db.cache.put({
+    const now = new Date();
+    const entry: CachedDataEntry = {
       key,
-      data,
-      updatedAt: new Date().toISOString(),
-    });
+      data: data as CachedData,
+      dataVersion: options?.dataVersion,
+      buildHash: options?.buildHash,
+      updatedAt: now.toISOString(),
+      expiresAt: options?.ttlSeconds
+        ? new Date(now.getTime() + options.ttlSeconds * 1000).toISOString()
+        : undefined,
+    };
+
+    await db.cache.put(entry);
   } catch (error) {
     console.error('Error writing to cache:', error);
+  }
+}
+
+/**
+ * Get cache metadata without loading full data
+ */
+export async function getCacheMetadata(key: string) {
+  try {
+    const entry = await db.cache.get(key);
+    if (!entry) return null;
+
+    return {
+      dataVersion: entry.dataVersion,
+      buildHash: entry.buildHash,
+      updatedAt: entry.updatedAt,
+      expiresAt: entry.expiresAt,
+      size: JSON.stringify(entry.data).length,
+    };
+  } catch (error) {
+    console.error('Error reading cache metadata:', error);
+    return null;
   }
 }
 
@@ -75,6 +143,54 @@ export async function setCachedData<T>(key: string, data: T): Promise<void> {
  */
 export async function clearCache(): Promise<void> {
   await db.cache.clear();
+}
+
+/**
+ * Migrate data schema when structure changes
+ * Detects old/incompatible cache formats and clears them for refetch
+ *
+ * @returns true if migration was needed and performed
+ */
+export async function migrateDataSchema(): Promise<boolean> {
+  try {
+    const indexCache = await db.cache.get(CACHE_KEYS.INDEX);
+    if (!indexCache) return false;
+
+    const data = indexCache.data as Record<string, unknown>;
+
+    // Check for old format (raw districts array instead of transformed index)
+    if ('districts' in data && Array.isArray(data.districts)) {
+      console.log('🔄 Old data format detected (raw districts array)');
+      console.log('   Clearing cache to trigger refetch in new format...');
+      await db.cache.delete(CACHE_KEYS.INDEX);
+      return true;
+    }
+
+    // Check for missing required fields in transformed index
+    if (!('codeToIds' in data) || !('features' in data)) {
+      console.log('🔄 Incomplete index format detected');
+      console.log('   Clearing cache to trigger refetch...');
+      await db.cache.delete(CACHE_KEYS.INDEX);
+      return true;
+    }
+
+    // Check for version metadata (added in Sprint 3)
+    // If missing, it's from an older build - clear to get versioned data
+    if (!indexCache.dataVersion && 'version' in data && data.version === 1) {
+      console.log('🔄 Pre-versioned cache detected');
+      console.log('   Clearing cache to get version-tracked data...');
+      await db.cache.delete(CACHE_KEYS.INDEX);
+      return true;
+    }
+
+    // All checks passed - no migration needed
+    return false;
+  } catch (error) {
+    console.error('Error during schema migration:', error);
+    // On error, clear cache to be safe
+    await db.cache.delete(CACHE_KEYS.INDEX);
+    return true;
+  }
 }
 
 // Progress management

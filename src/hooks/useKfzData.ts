@@ -5,70 +5,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { KfzIndex, KfzTopoJSON, KreissitzData, CodeDetailsData } from '@/data/schema';
-import { getCachedData, setCachedData, CACHE_KEYS } from '@/lib/storage';
+import { getCachedData, setCachedData, getCacheMetadata, migrateDataSchema, CACHE_KEYS } from '@/lib/storage';
 
 // Embedded fallback data for offline-first experience
-// This is a minimal subset - the full data is loaded from public/data
-import { FALLBACK_INDEX } from '@/data/fallback-index';
-
-// Raw district structure from index.json
-interface RawDistrict {
-  name: string;
-  codes: string[];
-  state: string;
-  center: [number, number];
-  ars?: string;
-}
-
-interface RawIndexData {
-  version: string;
-  source: string;
-  license: string;
-  districts: RawDistrict[];
-}
-
-/**
- * Transform the raw districts array into the KfzIndex format
- * that the search functions expect
- */
-function transformToKfzIndex(raw: RawIndexData): KfzIndex {
-  const codeToIds: Record<string, string[]> = {};
-  const features: Record<string, {
-    name: string;
-    ars: string;
-    kfzCodes: string[];
-    center: [number, number];
-  }> = {};
-
-  raw.districts.forEach((district, index) => {
-    const id = `district_${index}`;
-    
-    // Create feature entry
-    features[id] = {
-      name: district.name,
-      ars: district.ars || district.state, // Use state code as fallback for ARS
-      kfzCodes: district.codes,
-      center: district.center,
-    };
-
-    // Map each code to this feature ID
-    district.codes.forEach(code => {
-      const normalized = code.toUpperCase();
-      if (!codeToIds[normalized]) {
-        codeToIds[normalized] = [];
-      }
-      codeToIds[normalized].push(id);
-    });
-  });
-
-  return {
-    version: 1,
-    generated: raw.version,
-    source: raw.source,
-    codeToIds,
-    features,
-  };
-}
+// This contains ALL districts (generated at build time)
+import { GENERATED_FALLBACK } from '@/data/generated-fallback';
 
 interface DataState {
   index: KfzIndex | null;
@@ -95,31 +36,49 @@ export function useKfzData() {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
+      // Run schema migration check first
+      // This detects and clears old/incompatible cache formats
+      await migrateDataSchema();
+
       // Try to load from cache first
       let index = await getCachedData<KfzIndex>(CACHE_KEYS.INDEX);
       let topoJson = await getCachedData<KfzTopoJSON>(CACHE_KEYS.TOPO);
       let seats = await getCachedData<KreissitzData>(CACHE_KEYS.SEATS);
 
-      // Validate cached index has the expected structure
-      // If it's the old format, clear it
-      if (index && (!index.codeToIds || !index.features)) {
-        console.log('Clearing old format cache');
-        index = null;
-        await setCachedData(CACHE_KEYS.INDEX, null);
-      }
+      // Get cache metadata for version checking
+      const cachedMeta = await getCacheMetadata(CACHE_KEYS.INDEX);
 
-      // If not in cache or online, try to fetch fresh data
-      if (!index || navigator.onLine) {
+      // If online, check for newer version
+      if (navigator.onLine) {
         try {
-          const indexResponse = await fetch('/data/index.json');
-          if (indexResponse.ok) {
-            const rawData: RawIndexData = await indexResponse.json();
-            // Transform the raw districts into the expected index format
-            index = transformToKfzIndex(rawData);
-            await setCachedData(CACHE_KEYS.INDEX, index);
+          const indexResponse = await fetch('/data/index.transformed.json', {
+            cache: 'no-cache',
+            headers: cachedMeta?.dataVersion
+              ? { 'If-None-Match': cachedMeta.dataVersion }
+              : {},
+          });
+
+          if (indexResponse.ok && indexResponse.status !== 304) {
+            const freshData = await indexResponse.json() as KfzIndex;
+
+            // Check if version actually changed
+            if (!cachedMeta || freshData.dataVersion !== cachedMeta.dataVersion) {
+              console.log('Fetched fresh data:', freshData.dataVersion);
+              index = freshData;
+
+              // Cache with version metadata
+              await setCachedData(CACHE_KEYS.INDEX, index, {
+                dataVersion: index.dataVersion,
+                buildHash: index.buildHash,
+              });
+            } else {
+              console.log('Cache is up to date');
+            }
+          } else if (indexResponse.status === 304) {
+            console.log('Cache validated, still fresh');
           }
         } catch (e) {
-          console.log('Could not fetch index.json, using cache/fallback');
+          console.log('Could not fetch index.transformed.json, using cache/fallback', e);
         }
       }
 
@@ -141,7 +100,9 @@ export function useKfzData() {
           const seatsResponse = await fetch('/data/seats.json');
           if (seatsResponse.ok) {
             seats = await seatsResponse.json();
-            await setCachedData(CACHE_KEYS.SEATS, seats);
+            await setCachedData(CACHE_KEYS.SEATS, seats, {
+              ttlSeconds: 30 * 24 * 60 * 60, // 30 days
+            });
           }
         } catch (e) {
           console.log('Seats data not available (optional)');
@@ -155,7 +116,9 @@ export function useKfzData() {
           const codeDetailsResponse = await fetch('/data/code-details.json');
           if (codeDetailsResponse.ok) {
             codeDetails = await codeDetailsResponse.json();
-            await setCachedData(CACHE_KEYS.CODE_DETAILS, codeDetails);
+            await setCachedData(CACHE_KEYS.CODE_DETAILS, codeDetails, {
+              ttlSeconds: 30 * 24 * 60 * 60, // 30 days
+            });
           }
         } catch (e) {
           console.log('Code details not available (optional)');
@@ -165,7 +128,7 @@ export function useKfzData() {
       // Use fallback if still no index
       if (!index) {
         console.log('Using fallback index data');
-        index = FALLBACK_INDEX;
+        index = GENERATED_FALLBACK;
       }
 
       setState({
@@ -179,10 +142,10 @@ export function useKfzData() {
       });
     } catch (error) {
       console.error('Error loading KFZ data:', error);
-      
+
       // Try fallback
       setState({
-        index: FALLBACK_INDEX,
+        index: GENERATED_FALLBACK,
         topoJson: null,
         seats: null,
         codeDetails: null,

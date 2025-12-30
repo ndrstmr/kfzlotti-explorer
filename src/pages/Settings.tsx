@@ -1,18 +1,19 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, User, Moon, Sun, Monitor, RotateCcw, Trash2, Trophy, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, User, Moon, Sun, Monitor, RotateCcw, Trash2, Trophy, AlertTriangle, RefreshCw, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link } from 'react-router-dom';
-import { 
-  getUserSettings, 
-  updateUserSettings, 
+import {
+  getUserSettings,
+  updateUserSettings,
   getUserProgress,
   resetQuizProgress,
-  resetAllData 
+  resetAllData
 } from '@/lib/storage';
 import type { UserSettings, UserProgress } from '@/data/schema';
 import { useToast } from '@/hooks/use-toast';
+import { useUpdate } from '@/contexts/UpdateContext';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +31,14 @@ const Settings = () => {
   const [progress, setProgress] = useState<UserProgress | null>(null);
   const [displayName, setDisplayName] = useState('');
   const { toast } = useToast();
+  const {
+    dataVersion,
+    newVersion,
+    updateAvailable,
+    checking,
+    checkForUpdates,
+    installUpdate,
+  } = useUpdate();
 
   useEffect(() => {
     loadData();
@@ -167,6 +176,54 @@ const Settings = () => {
               <span className="text-xs">System</span>
             </Button>
           </div>
+        </section>
+
+        {/* App Updates */}
+        <section className="bg-card rounded-2xl p-6 shadow-card space-y-4">
+          <h2 className="text-lg font-display font-bold flex items-center gap-2">
+            <RefreshCw className="w-5 h-5 text-primary" />
+            App-Updates
+          </h2>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Datenversion:</span>
+              <span className="font-mono text-xs">{dataVersion || 'Lädt...'}</span>
+            </div>
+            {newVersion && (
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Verfügbar:</span>
+                <span className="font-mono text-xs text-primary font-bold">{newVersion}</span>
+              </div>
+            )}
+          </div>
+          <Button
+            onClick={updateAvailable ? installUpdate : checkForUpdates}
+            disabled={checking || !navigator.onLine}
+            className="w-full rounded-xl"
+            variant={updateAvailable ? "default" : "outline"}
+          >
+            {checking ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Suche nach Updates...
+              </>
+            ) : updateAvailable ? (
+              <>
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Update installieren
+              </>
+            ) : (
+              <>
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Nach Updates suchen
+              </>
+            )}
+          </Button>
+          {!navigator.onLine && (
+            <p className="text-xs text-muted-foreground text-center">
+              Keine Internetverbindung
+            </p>
+          )}
         </section>
 
         {/* Quiz Stats */}
