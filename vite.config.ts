@@ -22,36 +22,25 @@ export default defineConfig(({ mode }) => ({
         type: 'module',
       },
       workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,json,woff,woff2,webmanifest}"],
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,json,woff,woff2,ttf,webmanifest}"],
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/data\//],
+        navigateFallbackAllowlist: [/^\/(?!data\/)/], // Allow all except /data/
         cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: "CacheFirst",
-            options: {
-              cacheName: "google-fonts-cache",
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
+            // SPA Navigation - always serve index.html for navigation requests
+            urlPattern: ({ request, url }) => {
+              return request.mode === 'navigate' && !url.pathname.startsWith('/data/');
             },
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: "CacheFirst",
+            handler: 'NetworkFirst',
             options: {
-              cacheName: "gstatic-fonts-cache",
+              cacheName: 'pages-cache',
+              networkTimeoutSeconds: 3,
               expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24, // 24 hours
               },
             },
           },

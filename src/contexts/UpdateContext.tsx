@@ -127,10 +127,21 @@ export function UpdateProvider({ children, updateSW }: UpdateProviderProps) {
     }
   }, [dataVersion]);
 
-  const installUpdate = useCallback(() => {
-    if (updateSW) {
-      updateSW(true); // Reload page after update
-    } else {
+  const installUpdate = useCallback(async () => {
+    try {
+      if (updateSW) {
+        // Activate new service worker and skip waiting
+        await updateSW(true);
+
+        // Wait a bit for service worker to fully activate
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      // Hard reload to bypass all caches
+      window.location.reload();
+    } catch (error) {
+      console.error('Update installation failed:', error);
+      // Fallback to hard reload anyway
       window.location.reload();
     }
   }, [updateSW]);

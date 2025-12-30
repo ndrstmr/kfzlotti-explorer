@@ -9,6 +9,7 @@ import { registerSW } from 'virtual:pwa-register';
 
 // Capture updateSW function for manual update triggering
 const updateSW = registerSW({
+  immediate: true,
   onNeedRefresh() {
     console.log('New content available, please refresh.');
     // Dispatch custom event to notify UpdateContext
@@ -16,6 +17,18 @@ const updateSW = registerSW({
   },
   onOfflineReady() {
     console.log('App ready to work offline.');
+  },
+  onRegisteredSW(swScriptUrl, registration) {
+    console.log('Service Worker registered:', swScriptUrl);
+
+    // Check for updates periodically (every 60 seconds)
+    if (registration) {
+      setInterval(() => {
+        registration.update().catch(err => {
+          console.error('Failed to check for updates:', err);
+        });
+      }, 60000);
+    }
   },
 });
 
