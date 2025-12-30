@@ -147,6 +147,29 @@
   [type="submit"],
   [type="reset"] {
     touch-action: manipulation;
+    /* Remove webkit tap highlight color (the purple/blue flash on touch) */
+    -webkit-tap-highlight-color: transparent;
+    /* Prevent sticky active state */
+    -webkit-touch-callout: none;
+  }
+
+  /* Fix sticky hover on touch devices */
+  /* Only enable hover effects on devices with true hover capability */
+  /* Remove default hover styles */
+  .hover\:border-primary:hover,
+  .hover\:bg-primary\/10:hover {
+    border-color: inherit;
+    background-color: inherit;
+  }
+
+  /* Re-enable hover ONLY on devices that support it */
+  @media (hover: hover) {
+    .hover\:border-primary:hover {
+      border-color: hsl(var(--primary));
+    }
+    .hover\:bg-primary\/10:hover {
+      background-color: hsl(var(--primary) / 0.1);
+    }
   }
 }
 

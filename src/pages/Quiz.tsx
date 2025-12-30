@@ -152,6 +152,14 @@ const Quiz = () => {
       });
       setSelectedAnswer(null);
       setIsCorrect(null);
+
+      // Remove focus after React renders new buttons
+      setTimeout(() => {
+        if (document.activeElement && document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
+      }, 0);
+
       return;
     }
 
@@ -546,10 +554,10 @@ const Quiz = () => {
             </div>
 
             {/* Answer Options */}
-            <div className="grid grid-cols-1 gap-3">
+            <div className={`grid grid-cols-1 gap-3 ${selectedAnswer !== null ? 'pointer-events-none' : ''}`}>
               {question.options.map((option) => {
-                let buttonClass = "w-full py-5 text-lg font-display font-semibold rounded-2xl border-2 transition-all ";
-                
+                let buttonClass = "w-full py-5 text-lg font-display font-semibold rounded-2xl border-2 transition-all active:bg-background ";
+
                 if (selectedAnswer === null) {
                   buttonClass += "border-border hover:border-primary hover:bg-primary/10";
                 } else if (option === question.correctAnswer) {
@@ -562,10 +570,14 @@ const Quiz = () => {
 
                 return (
                   <Button
-                    key={option}
+                    key={`${question.kfzCode}-${option}`}
                     variant="outline"
                     className={buttonClass}
                     onClick={() => handleAnswer(option)}
+                    onTouchEnd={(e) => {
+                      // Remove sticky hover/active state on touch devices
+                      (e.currentTarget as HTMLElement).blur();
+                    }}
                     disabled={selectedAnswer !== null}
                   >
                     <span className="flex items-center gap-2">
