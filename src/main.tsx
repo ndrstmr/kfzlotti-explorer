@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { SettingsProvider } from '@/contexts/SettingsContext';
 import { UpdateProvider } from '@/contexts/UpdateContext';
 
 // PWA Service Worker Registration
@@ -19,7 +20,9 @@ const updateSW = registerSW({
 });
 
 createRoot(document.getElementById("root")!).render(
-  <UpdateProvider updateSW={updateSW}>
-    <App />
-  </UpdateProvider>
+  <SettingsProvider>
+    <UpdateProvider updateSW={updateSW}>
+      <App />
+    </UpdateProvider>
+  </SettingsProvider>
 );

@@ -5,26 +5,21 @@ import { Input } from '@/components/ui/input';
 import { useKfzData } from '@/hooks/useKfzData';
 import { searchKfzCode, type SearchResult } from '@/lib/search';
 import { normalizeKfzCode } from '@/lib/normalize';
-import { recordSearch, getUserSettings } from '@/lib/storage';
+import { recordSearch } from '@/lib/storage';
 import { useOnlineStatus } from '@/lib/pwa';
+import { useSettings } from '@/contexts/SettingsContext';
 import ResultCards from '@/components/ResultCards';
 import InstallHint from '@/components/InstallHint';
 import { Link } from 'react-router-dom';
-import type { UserSettings } from '@/data/schema';
 import { siteConfig } from '@/config/site';
 
 const Index = () => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
-  const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
+  const { settings: userSettings } = useSettings();
   const { index, codeDetails, isLoading, error } = useKfzData();
   const isOnline = useOnlineStatus();
-
-  // Load user settings
-  useEffect(() => {
-    getUserSettings().then(setUserSettings);
-  }, []);
 
   // Search when query changes
   useEffect(() => {

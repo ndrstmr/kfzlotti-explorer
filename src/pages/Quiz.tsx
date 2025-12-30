@@ -5,8 +5,8 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useKfzData } from '@/hooks/useKfzData';
 import { searchKfzCode, SearchResult } from '@/lib/search';
 import { getRandomBundeslaender, getBundeslandFromArs, getBundeslandFromShortName } from '@/data/bundeslaender';
-import { recordQuizAnswer, recordCorrectedAnswer, getUserProgress, getUserSettings } from '@/lib/storage';
-import type { UserSettings } from '@/data/schema';
+import { recordQuizAnswer, recordCorrectedAnswer, getUserProgress } from '@/lib/storage';
+import { useSettings } from '@/contexts/SettingsContext';
 import confetti from 'canvas-confetti';
 import BattleQuiz from '@/components/BattleQuiz';
 import {
@@ -42,8 +42,9 @@ type QuizMode = 'normal' | 'errors' | 'battle';
 const Quiz = () => {
   const [searchParams] = useSearchParams();
   const initialMode = searchParams.get('mode') === 'errors' ? 'errors' : 'normal';
-  
+
   const { index, codeDetails, isLoading } = useKfzData();
+  const { settings } = useSettings();
   const [mode, setMode] = useState<QuizMode>(initialMode);
   const [question, setQuestion] = useState<QuizQuestion | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -52,7 +53,6 @@ const Quiz = () => {
   const [askedCodes, setAskedCodes] = useState<Set<string>>(new Set());
   const [errorCodes, setErrorCodes] = useState<string[]>([]);
   const [sessionStats, setSessionStats] = useState<SessionStats>({ correct: 0, wrong: 0, wrongCodes: [] });
-  const [settings, setSettings] = useState<UserSettings | null>(null);
   const [showModeSelect, setShowModeSelect] = useState(initialMode === 'normal');
   const [availableErrorCount, setAvailableErrorCount] = useState(0);
   const [selectedBadge, setSelectedBadge] = useState<{ code: string; origin: string; note?: string } | null>(null);
@@ -62,17 +62,13 @@ const Quiz = () => {
     return codeDetails.codes[code.toUpperCase()];
   };
 
-  // Load error codes and settings
+  // Load error codes and score
   useEffect(() => {
     const loadData = async () => {
-      const [progress, userSettings] = await Promise.all([
-        getUserProgress(),
-        getUserSettings()
-      ]);
+      const progress = await getUserProgress();
       setErrorCodes(progress.quizErrors);
-      setSettings(userSettings);
-      setScore({ 
-        correct: progress.quizCorrect, 
+      setScore({
+        correct: progress.quizCorrect,
         total: progress.quizTotal,
         corrected: progress.quizCorrected?.length || 0
       });

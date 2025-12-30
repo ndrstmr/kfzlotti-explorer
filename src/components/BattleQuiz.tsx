@@ -6,7 +6,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { useKfzData } from '@/hooks/useKfzData';
 import { searchKfzCode, SearchResult } from '@/lib/search';
 import { getRandomBundeslaender, getBundeslandFromArs, getBundeslandFromShortName } from '@/data/bundeslaender';
-import { getUserSettings } from '@/lib/storage';
+import { useSettings } from '@/contexts/SettingsContext';
 
 interface BattleQuestion {
   kfzCode: string;
@@ -44,25 +44,22 @@ const COUNT_OPTIONS = [10, 20, 30, 50];
 
 const BattleQuiz = ({ onBack }: BattleQuizProps) => {
   const { index, isLoading } = useKfzData();
-  
+  const { settings } = useSettings();
+
   // Setup state
   const [playerNames, setPlayerNames] = useState<string[]>(['']);
   const [battleMode, setBattleMode] = useState<BattleMode>('time');
   const [battleType, setBattleType] = useState<BattleType>('challenge');
   const [timeLimit, setTimeLimit] = useState(30);
   const [questionCount, setQuestionCount] = useState(20);
-  const [defaultPlayerName, setDefaultPlayerName] = useState('');
-  
-  // Load default player name from settings
+
+  // Sync player name with settings
   useEffect(() => {
-    getUserSettings().then(settings => {
-      if (settings.displayName) {
-        setDefaultPlayerName(settings.displayName);
-        // Pre-fill if player name is empty
-        setPlayerNames(prev => prev[0] === '' ? [settings.displayName] : prev);
-      }
-    });
-  }, []);
+    if (settings?.displayName) {
+      // Pre-fill if player name is empty
+      setPlayerNames(prev => prev[0] === '' ? [settings.displayName] : prev);
+    }
+  }, [settings]);
   
   // Game state
   const [phase, setPhase] = useState<BattlePhase>('setup');

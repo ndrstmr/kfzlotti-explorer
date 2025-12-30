@@ -6,14 +6,13 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Link } from 'react-router-dom';
 import {
-  getUserSettings,
-  updateUserSettings,
   getUserProgress,
   resetQuizProgress,
   resetAllData
 } from '@/lib/storage';
-import type { UserSettings, UserProgress } from '@/data/schema';
+import type { UserProgress } from '@/data/schema';
 import { useToast } from '@/hooks/use-toast';
+import { useSettings } from '@/contexts/SettingsContext';
 import { useUpdate } from '@/contexts/UpdateContext';
 import {
   AlertDialog,
@@ -28,10 +27,10 @@ import {
 } from '@/components/ui/alert-dialog';
 
 const Settings = () => {
-  const [settings, setSettings] = useState<UserSettings | null>(null);
   const [progress, setProgress] = useState<UserProgress | null>(null);
   const [displayName, setDisplayName] = useState('');
   const { toast } = useToast();
+  const { settings, updateDarkMode, updateDisplayName, updateOfflineMode } = useSettings();
   const {
     dataVersion,
     newVersion,
@@ -45,16 +44,21 @@ const Settings = () => {
     loadData();
   }, []);
 
+  useEffect(() => {
+    // Sync local displayName with settings from context
+    if (settings) {
+      setDisplayName(settings.displayName);
+    }
+  }, [settings]);
+
   const loadData = async () => {
-    const [s, p] = await Promise.all([getUserSettings(), getUserProgress()]);
-    setSettings(s);
+    const p = await getUserProgress();
     setProgress(p);
-    setDisplayName(s.displayName);
   };
 
   const handleNameChange = async (name: string) => {
     setDisplayName(name);
-    await updateUserSettings({ displayName: name });
+    await updateDisplayName(name);
     toast({
       title: 'Gespeichert!',
       description: name ? `Hallo, ${name}!` : 'Name entfernt',
@@ -62,24 +66,8 @@ const Settings = () => {
   };
 
   const handleDarkModeChange = async (mode: 'system' | 'light' | 'dark') => {
-    await updateUserSettings({ darkMode: mode });
-    setSettings(prev => prev ? { ...prev, darkMode: mode } : null);
-    
-    // Apply theme
-    const root = document.documentElement;
-    if (mode === 'dark') {
-      root.classList.add('dark');
-    } else if (mode === 'light') {
-      root.classList.remove('dark');
-    } else {
-      // System preference
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        root.classList.add('dark');
-      } else {
-        root.classList.remove('dark');
-      }
-    }
-    
+    await updateDarkMode(mode);
+
     toast({
       title: 'Design geändert',
       description: mode === 'system' ? 'Folgt dem System' : mode === 'dark' ? 'Dunkelmodus aktiviert' : 'Hellmodus aktiviert',
@@ -87,8 +75,7 @@ const Settings = () => {
   };
 
   const handleOfflineModeChange = async (enabled: boolean) => {
-    await updateUserSettings({ offlineMode: enabled });
-    setSettings(prev => prev ? { ...prev, offlineMode: enabled } : null);
+    await updateOfflineMode(enabled);
 
     toast({
       title: enabled ? "Offline-Modus aktiviert" : "Offline-Modus deaktiviert",
