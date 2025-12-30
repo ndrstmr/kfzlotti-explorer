@@ -259,6 +259,83 @@ Diese Release wurde entwickelt mit Unterstützung von Claude Code (Anthropic).
 
 ---
 
+## [2.1.0] - 2025-12-30
+
+**🌐 Offline-First & Mobile UX Release**
+
+Diese Version macht KFZlotti zu einer echten Offline-First PWA mit komplett selbst-gehosteten Ressourcen und verbesserten Touch-Interaktionen für mobile Geräte.
+
+### ✨ Neue Features
+
+#### Offline-Modus
+- **Einstellung in Settings** zum vollständigen Deaktivieren aller Netzwerk-Anfragen
+- **WiFi-Icon** zeigt Offline-Status auch bei aktiviertem Offline-Modus
+- **useKfzData** respektiert Offline-Modus und nutzt ausschließlich gecachte Daten
+- **UpdateContext** prüft Offline-Modus vor Version-Checks
+- Perfekt für Nutzer ohne Internet oder mit Datensparen-Modus
+
+#### Self-Hosted Fonts
+- **Fredoka & Nunito** komplett lokal gehostet (alle Gewichte: 400, 500, 600, 700)
+- **Download-Script** (`scripts/download-fonts.ts`) für einfache Font-Updates
+- **Keine externe Abhängigkeiten** mehr - 100% offline-fähig
+- **CSP aktualisiert**: `font-src 'self'` (Google Fonts entfernt)
+- Bundle-Impact: ~696 KB für vollständige Offline-Funktionalität
+
+### 🎨 Mobile UX-Verbesserungen
+
+#### Touch-Optimierungen
+- **Floating Action Button (FAB)** im Quiz auf Mobile (< 768px)
+  - Erscheint nach Beantwortung der Frage
+  - Fixed Position bottom-right
+  - Desktop behält originalen Button
+- **Touch-optimierte Badge-Interaktionen**
+  - Visuelle Indikatoren (ⓘ Icon, dashed border)
+  - Desktop: Tooltips on hover
+  - Mobile: Tap öffnet AlertDialog mit Details
+- **Toast-Benachrichtigungen** mit sichtbarem Close-Button (opacity 70%)
+- **Focus-State Fix** im Battle Quiz (blur() vor Fragenwechsel)
+- **Global Touch-Optimization** via `touch-action: manipulation`
+  - Verhindert versehentliche Auslöser beim Wischen/Scrollen
+  - Entfernt 300ms Tap-Delay
+
+### 🔧 Technische Änderungen
+
+#### Neue Dateien
+- `scripts/download-fonts.ts` - Automatisches Download-Script für Google Fonts
+- `src/fonts.css` - @font-face Definitionen für lokale Fonts
+- `public/fonts/` - 8 Font-Dateien (fredoka/nunito: 400, 500, 600, 700)
+
+#### Geänderte Dateien
+- `src/data/schema.ts`: `offlineMode?: boolean` zu UserSettings hinzugefügt
+- `src/pages/Settings.tsx`: Offline-Modus Toggle mit Switch-Komponente
+- `src/hooks/useKfzData.ts`: Offline-Modus Checks vor allen Fetch-Requests
+- `src/contexts/UpdateContext.tsx`: Offline-Modus respektieren
+- `src/pages/Index.tsx`: WiFi-Icon zeigt Offline bei aktiviertem Modus
+- `index.html`: Google Fonts Links entfernt, CSP bereinigt
+- `scripts/fix-production-csp.ts`: Production CSP ohne Google Fonts Domains
+- `src/index.css`: Font-Import + touch-action: manipulation
+
+### 📊 Bundle-Size Impact
+
+| Ressource | Größe | Hinweis |
+|-----------|-------|---------|
+| Fredoka Fonts (4 weights) | ~192 KB | Lokal gehostet |
+| Nunito Fonts (4 weights) | ~492 KB | Lokal gehostet |
+| fonts.css | 2 KB | @font-face Definitionen |
+| **Total** | ~686 KB | Trade-off für 100% Offline-Support |
+
+### 🌐 Kompatibilität
+
+- **Offline:** App funktioniert jetzt VOLLSTÄNDIG ohne Internet (Daten + Fonts)
+- **Mobile:** Verbesserte Touch-Erfahrung auf iOS & Android
+- **Desktop:** Keine Regression, alle Features funktionieren wie zuvor
+
+### ⚠️ Breaking Changes
+
+**KEINE** - Alle Änderungen sind abwärtskompatibel!
+
+---
+
 ## [Unreleased]
 
 Keine unveröffentlichten Änderungen.
@@ -281,5 +358,6 @@ Keine unveröffentlichten Änderungen.
 
 ---
 
-[2.0.0]: https://github.com/webeums/kfzlotti-explorer/releases/tag/v2.0.0
-[1.0.0]: https://github.com/webeums/kfzlotti-explorer/releases/tag/v1.0.0
+[2.1.0]: https://github.com/ndrstmr/kfzlotti-explorer/releases/tag/v2.1.0
+[2.0.0]: https://github.com/ndrstmr/kfzlotti-explorer/releases/tag/v2.0.0
+[1.0.0]: https://github.com/ndrstmr/kfzlotti-explorer/releases/tag/v1.0.0
