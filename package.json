@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "prebuild": "bun run build:data",
-    "build": "vite build",
+    "build": "vite build && bun scripts/fix-production-csp.ts",
     "build:dev": "vite build --mode development",
     "build:data": "bun scripts/build-data.ts",
     "validate:data": "bun scripts/validate-data.ts",

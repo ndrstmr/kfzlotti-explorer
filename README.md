@@ -1,6 +1,6 @@
 # 🚗 KFZlotti
 
-[![CI](https://github.com/[YOUR-USERNAME]/kfzlotti-explorer/actions/workflows/ci.yml/badge.svg)](https://github.com/[YOUR-USERNAME]/kfzlotti-explorer/actions/workflows/ci.yml)
+[![CI](https://github.com/ndrstmr/kfzlotti-explorer/actions/workflows/ci.yml/badge.svg)](https://github.com/ndrstmr/kfzlotti-explorer/actions/workflows/ci.yml)
 [![License: EUPL 1.2](https://img.shields.io/badge/License-EUPL%201.2-blue.svg)](https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.3-blue)](https://react.dev/)
@@ -122,8 +122,7 @@ export const siteConfig = {
 
 ### Weitere Konfiguration
 
-- **Domain/URL**: Ersetze `[YOUR-DOMAIN]` in `public/sitemap.xml` und `public/robots.txt`
-- **GitHub Badge**: Ersetze `[YOUR-USERNAME]` im README-Badge
+- **Domain/URL**: Ersetze `[YOUR-DOMAIN]` in `public/sitemap.xml` und `public/robots.txt` (falls vorhanden)
 
 ## 📁 Projektstruktur
 
@@ -241,7 +240,7 @@ bun install
 bun test
 ```
 
-Weitere Hilfe: [GitHub Issues](https://github.com/[YOUR-USERNAME]/kfzlotti-explorer/issues)
+Weitere Hilfe: [GitHub Issues](https://github.com/ndrstmr/kfzlotti-explorer/issues)
 
 ## 🗺️ Roadmap
 
@@ -285,12 +284,12 @@ Die verwendeten Daten unterliegen eigenen Lizenzen:
 - [Wikipedia](https://de.wikipedia.org/) für die KFZ-Kennzeichen-Datenbank
 - [shadcn/ui](https://ui.shadcn.com/) für die großartigen UI-Komponenten
 - [Lovable](https://lovable.dev) als Entwicklungsplattform
-- Alle [Contributors](https://github.com/[YOUR-USERNAME]/kfzlotti-explorer/graphs/contributors) 🎉
+- Alle [Contributors](https://github.com/ndrstmr/kfzlotti-explorer/graphs/contributors) 🎉
 
 ## 📞 Kontakt & Support
 
-- **Issues**: [GitHub Issues](https://github.com/[YOUR-USERNAME]/kfzlotti-explorer/issues)
-- **Diskussionen**: [GitHub Discussions](https://github.com/[YOUR-USERNAME]/kfzlotti-explorer/discussions)
+- **Issues**: [GitHub Issues](https://github.com/ndrstmr/kfzlotti-explorer/issues)
+- **Diskussionen**: [GitHub Discussions](https://github.com/ndrstmr/kfzlotti-explorer/discussions)
 - **E-Mail**: Siehe [Impressum](src/config/site.ts)
 
 ---
