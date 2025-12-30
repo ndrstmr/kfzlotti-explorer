@@ -7,6 +7,125 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [2.3.0] - 2025-12-30
+
+**🔧 Open Source & Privacy-First Configuration**
+
+Diese Version führt Environment Variables ein, um persönliche Daten (Impressum) vom Code zu trennen. Das ermöglicht Open Source Development bei gleichzeitigem Schutz privater Produktions-Konfigurationen.
+
+### ✨ Neue Features
+
+#### Environment Variables für Site-Konfiguration
+- **`.env` Support** für persönliche Daten (Impressum, Kontaktdaten)
+- **`.env.example`** Template im Repository für Contributors
+- **Automatisches Laden** der Werte beim Build-Prozess
+- **Git-sicher**: `.env` wird nicht committed (in `.gitignore`)
+
+**Neue Dateien:**
+- `.env.example` - Template mit Platzhaltern (im Git)
+- `.env` - Persönliche Daten (lokal, NICHT im Git)
+
+### 🔧 Technische Änderungen
+
+#### src/config/site.ts
+**Vorher:**
+```typescript
+legal: {
+  name: "Andreas Teumer",  // ❌ Hardcoded im Code
+  street: "Am Ehrenmal 12",
+  // ...
+}
+```
+
+**Jetzt:**
+```typescript
+legal: {
+  name: import.meta.env.VITE_LEGAL_NAME || "[Dein Name]",
+  street: import.meta.env.VITE_LEGAL_STREET || "[Straße]",
+  // ...
+}
+```
+
+#### Vite Environment Variables
+Nutzt Vites eingebautes ENV-System:
+- `VITE_LEGAL_NAME` - Vollständiger Name für Impressum
+- `VITE_LEGAL_STREET` - Straße und Hausnummer
+- `VITE_LEGAL_CITY` - PLZ und Ort
+- `VITE_LEGAL_EMAIL` - Kontakt-E-Mail
+- `VITE_GITHUB_URL` - GitHub Repository URL
+
+#### .gitignore
+```
+# Environment variables (contains personal data)
+.env
+.env.local
+.env.*.local
+```
+
+#### README.md
+Neue Sektion "⚙️ Konfiguration" mit Setup-Anleitung:
+```bash
+cp .env.example .env
+# Bearbeite .env und fülle persönliche Daten ein
+```
+
+### 📊 Vorteile
+
+**Für Projekt-Maintainer:**
+- ✅ Persönliche Daten bleiben lokal
+- ✅ Production Builds ohne Code-Änderungen
+- ✅ Verschiedene Configs für Dev/Staging/Production möglich
+- ✅ Keine versehentlichen Leaks von privaten Daten
+
+**Für Contributors (Open Source):**
+- ✅ Repository enthält keine persönlichen Daten
+- ✅ Klares Setup mit `.env.example`
+- ✅ Jeder kann eigene Config nutzen
+- ✅ Standard Vite ENV-Approach
+
+**Für Deployments:**
+- ✅ CI/CD kann eigene `.env` injizieren
+- ✅ Umgebungsspezifische Konfiguration
+- ✅ Secrets Management kompatibel
+
+### 🔄 Migration
+
+**Bestehende Installationen:**
+1. `.env.example` nach `.env` kopieren:
+   ```bash
+   cp .env.example .env
+   ```
+2. `.env` mit persönlichen Daten füllen
+3. Build läuft wie gewohnt: `bun run build`
+
+**Neue Installationen:**
+- Setup-Anleitung in README.md folgen
+- `.env` ist Pflicht vor erstem Build
+
+### ⚠️ Breaking Changes
+
+**KEINE für Nutzer** - Aber Setup-Schritt erforderlich!
+
+Entwickler müssen einmalig:
+- `.env` Datei erstellen (aus `.env.example`)
+- Persönliche Daten eintragen
+- Danach funktioniert alles wie zuvor
+
+### 💡 Best Practices
+
+**DO:**
+- ✅ `.env` in `.gitignore` lassen
+- ✅ `.env.example` aktuell halten (Template)
+- ✅ Persönliche Daten nur in `.env`
+- ✅ CI/CD Secrets für Production
+
+**DON'T:**
+- ❌ `.env` committen
+- ❌ Hardcoded Daten in `site.ts`
+- ❌ Secrets in Code schreiben
+
+---
+
 ## [2.2.1] - 2025-12-30
 
 **🐛 Critical PWA Bugfixes**
@@ -544,6 +663,7 @@ Keine unveröffentlichten Änderungen.
 
 ---
 
+[2.3.0]: https://github.com/ndrstmr/kfzlotti-explorer/releases/tag/v2.3.0
 [2.2.1]: https://github.com/ndrstmr/kfzlotti-explorer/releases/tag/v2.2.1
 [2.2.0]: https://github.com/ndrstmr/kfzlotti-explorer/releases/tag/v2.2.0
 [2.1.0]: https://github.com/ndrstmr/kfzlotti-explorer/releases/tag/v2.1.0
