@@ -15,6 +15,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface QuizQuestion {
   kfzCode: string;
@@ -48,6 +55,7 @@ const Quiz = () => {
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [showModeSelect, setShowModeSelect] = useState(initialMode === 'normal');
   const [availableErrorCount, setAvailableErrorCount] = useState(0);
+  const [selectedBadge, setSelectedBadge] = useState<{ code: string; origin: string; note?: string } | null>(null);
 
   const getCodeDetail = (code: string) => {
     if (!codeDetails?.codes) return null;
@@ -616,21 +624,35 @@ const Quiz = () => {
                         <div className="flex flex-wrap gap-1">
                           {question.result.kfzCodes.map(code => {
                             const detail = getCodeDetail(code);
+                            const badgeContent = (
+                              <span
+                                className={`px-2 py-0.5 rounded-lg text-sm font-medium inline-flex items-center gap-1 ${
+                                  detail ? 'cursor-pointer hover:scale-105 active:scale-95 transition-transform' : ''
+                                } ${
+                                  code === question.kfzCode
+                                    ? 'bg-primary text-primary-foreground'
+                                    : detail?.type === 'historic'
+                                    ? 'bg-secondary/20 text-secondary border border-secondary/30'
+                                    : detail
+                                    ? 'bg-background border-2 border-dashed border-primary/40'
+                                    : 'bg-background border border-border'
+                                }`}
+                                onClick={() => detail && setSelectedBadge({ code, origin: detail.origin, note: detail.note })}
+                              >
+                                {code}
+                                {detail && <span className="text-[10px] opacity-60">ⓘ</span>}
+                              </span>
+                            );
+
+                            // Desktop: Tooltip on hover, Mobile: Click to open dialog
                             return (
                               <Tooltip key={code}>
-                                <TooltipTrigger asChild>
-                                  <span
-                                    className={`px-2 py-0.5 rounded-lg text-sm font-medium cursor-help ${
-                                      code === question.kfzCode
-                                        ? 'bg-primary text-primary-foreground'
-                                        : detail?.type === 'historic'
-                                        ? 'bg-secondary/20 text-secondary border border-secondary/30'
-                                        : 'bg-background border border-border'
-                                    }`}
-                                  >
-                                    {code}
-                                  </span>
+                                <TooltipTrigger asChild className="hidden md:inline-flex">
+                                  {badgeContent}
                                 </TooltipTrigger>
+                                <span key={`${code}-mobile`} className="md:hidden">
+                                  {badgeContent}
+                                </span>
                                 {detail && (
                                   <TooltipContent side="top" className="max-w-xs">
                                     <p className="font-semibold">{code} = {detail.origin}</p>
@@ -648,21 +670,63 @@ const Quiz = () => {
                   </div>
                 </div>
 
-                {/* Next Button */}
-                <Button
-                  className="w-full gradient-primary text-primary-foreground py-6 text-lg font-display font-bold rounded-2xl"
-                  onClick={() => generateQuestion()}
-                >
-                  {mode === 'errors' && errorCodes.filter(c => !askedCodes.has(c)).length === 0
-                    ? 'Zur Übersicht 📊'
-                    : 'Nächste Frage 🚀'
-                  }
-                </Button>
+                {/* Next Button (Desktop only) */}
+                <div className="hidden md:block">
+                  <Button
+                    className="w-full gradient-primary text-primary-foreground py-6 text-lg font-display font-bold rounded-2xl"
+                    onClick={() => generateQuestion()}
+                  >
+                    {mode === 'errors' && errorCodes.filter(c => !askedCodes.has(c)).length === 0
+                      ? 'Zur Übersicht 📊'
+                      : 'Nächste Frage 🚀'
+                    }
+                  </Button>
+                </div>
               </div>
             )}
           </>
         )}
+
+        {/* Spacer for FAB on mobile - prevents content being hidden behind button */}
+        {selectedAnswer !== null && <div className="h-24 md:hidden" aria-hidden="true" />}
       </main>
+
+      {/* Floating Action Button (Mobile only) */}
+      {question && selectedAnswer !== null && (
+        <button
+          onClick={() => generateQuestion()}
+          className="md:hidden fixed bottom-6 right-4 z-50 gradient-primary text-primary-foreground px-6 py-4 rounded-full shadow-2xl font-display font-bold text-base flex items-center gap-2 animate-fade-in hover:scale-105 active:scale-95 transition-transform"
+          aria-label="Nächste Frage"
+        >
+          {mode === 'errors' && errorCodes.filter(c => !askedCodes.has(c)).length === 0
+            ? '📊 Übersicht'
+            : '🚀 Weiter'
+          }
+        </button>
+      )}
+
+      {/* Badge Detail Dialog (Mobile only) */}
+      <AlertDialog open={!!selectedBadge} onOpenChange={(open) => !open && setSelectedBadge(null)}>
+        <AlertDialogContent className="max-w-sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-2xl font-display">
+              {selectedBadge?.code}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base space-y-2">
+              <p className="font-semibold text-foreground">{selectedBadge?.origin}</p>
+              {selectedBadge?.note && (
+                <p className="text-sm text-muted-foreground">{selectedBadge.note}</p>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Button
+            onClick={() => setSelectedBadge(null)}
+            className="mt-4"
+          >
+            Schließen
+          </Button>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { MapPin, Tag, Map, Building, Info } from 'lucide-react';
 import type { SearchResult } from '@/lib/search';
 import type { CodeDetailsData } from '@/data/schema';
@@ -7,6 +8,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 
 interface ResultCardsProps {
   results: SearchResult[];
@@ -15,7 +24,8 @@ interface ResultCardsProps {
 
 const ResultCards = ({ results, codeDetails }: ResultCardsProps) => {
   const result = results[0]; // Show first result (most relevant)
-  
+  const [selectedBadge, setSelectedBadge] = useState<{ code: string; origin: string; note?: string; type?: string } | null>(null);
+
   if (!result) return null;
 
   const getCodeDetail = (code: string) => {
@@ -97,21 +107,35 @@ const ResultCards = ({ results, codeDetails }: ResultCardsProps) => {
             <div className="flex flex-wrap gap-1">
               {result.kfzCodes.map((code) => {
                 const detail = getCodeDetail(code);
+                const badgeContent = (
+                  <span
+                    className={`px-2 py-0.5 rounded-md text-sm font-bold inline-flex items-center gap-1 transition-colors ${
+                      detail ? 'cursor-pointer hover:scale-105 active:scale-95 transition-transform' : ''
+                    } ${
+                      code === result.kfzCode
+                        ? 'bg-primary/20 text-primary'
+                        : detail?.type === 'historic'
+                        ? 'bg-secondary/10 text-secondary border border-secondary/30'
+                        : detail
+                        ? 'bg-muted text-muted-foreground border-2 border-dashed border-primary/40'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                    onClick={() => detail && setSelectedBadge({ code, origin: detail.origin, note: detail.note, type: detail.type })}
+                  >
+                    {code}
+                    {detail && <span className="text-[10px] opacity-60">ⓘ</span>}
+                  </span>
+                );
+
+                // Desktop: Tooltip on hover, Mobile: Click to open dialog
                 return (
                   <Tooltip key={code}>
-                    <TooltipTrigger asChild>
-                      <span
-                        className={`px-2 py-0.5 rounded-md text-sm font-bold cursor-help transition-colors ${
-                          code === result.kfzCode
-                            ? 'bg-primary/20 text-primary'
-                            : detail?.type === 'historic'
-                            ? 'bg-secondary/10 text-secondary border border-secondary/30'
-                            : 'bg-muted text-muted-foreground'
-                        }`}
-                      >
-                        {code}
-                      </span>
+                    <TooltipTrigger asChild className="hidden md:inline-flex">
+                      {badgeContent}
                     </TooltipTrigger>
+                    <span key={`${code}-mobile`} className="md:hidden">
+                      {badgeContent}
+                    </span>
                     {detail && (
                       <TooltipContent side="top" className="max-w-xs">
                         <p className="font-semibold">{code} = {detail.origin}</p>
@@ -139,6 +163,34 @@ const ResultCards = ({ results, codeDetails }: ResultCardsProps) => {
           </p>
         )}
       </div>
+
+      {/* Badge Detail Dialog (Mobile only) */}
+      <AlertDialog open={!!selectedBadge} onOpenChange={(open) => !open && setSelectedBadge(null)}>
+        <AlertDialogContent className="max-w-sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-2xl font-display">
+              {selectedBadge?.code}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base space-y-2">
+              <p className="font-semibold text-foreground">{selectedBadge?.origin}</p>
+              {selectedBadge?.note && (
+                <p className="text-sm text-muted-foreground">{selectedBadge.note}</p>
+              )}
+              {selectedBadge?.type === 'historic' && (
+                <span className="inline-block text-xs bg-secondary/20 text-secondary px-2 py-0.5 rounded">
+                  Altkennzeichen
+                </span>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Button
+            onClick={() => setSelectedBadge(null)}
+            className="mt-4"
+          >
+            Schließen
+          </Button>
+        </AlertDialogContent>
+      </AlertDialog>
     </TooltipProvider>
   );
 };

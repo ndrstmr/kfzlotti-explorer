@@ -27,3 +27,6 @@ dev-dist
 # Claude Code specific files
 CLAUDE.md
 CODE_REVIEW.md
+
+# Local temporary files (screenshots, etc.)
+tmp/

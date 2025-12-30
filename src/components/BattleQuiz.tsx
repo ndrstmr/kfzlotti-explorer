@@ -284,6 +284,11 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
     
     // Auto-advance after short delay
     setTimeout(() => {
+      // Remove focus from button to prevent focus state on next question
+      if (document.activeElement && document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+
       if (battleMode === 'count') {
         if (currentQuestionIndex + 1 >= questionCount) {
           finishCurrentPlayer();
