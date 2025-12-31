@@ -1,14 +1,4 @@
 {
-  "rewrites": [
-    {
-      "source": "/favicon.ico",
-      "destination": "/icons/favicon.svg"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ],
   "headers": [
     {
       "source": "/(.*)",
