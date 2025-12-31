@@ -7,6 +7,57 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [2.4.1] - 2025-12-31
+
+**🔧 Bug Fixes & Build Improvements**
+
+Patch-Release mit wichtigen Fixes für Routing und automatisierter Domain-Ersetzung.
+
+### 🔧 Bug Fixes
+
+#### Sitemap HashRouter URLs
+- **Fix:** sitemap.xml hatte noch alte BrowserRouter-URLs
+  - `/quiz` → `/#/quiz`
+  - `/info` → `/#/info`
+  - `/settings` → `/#/settings`
+- **Fix:** 404-Fehler bei Hard-Reload (Ctrl+Shift+R) auf Unterseiten behoben
+- **Impact:** Sitemap ist jetzt kompatibel mit HashRouter (seit v2.3.1)
+
+### ✨ Neue Features
+
+#### Automatische Domain-Ersetzung im Build
+- **Neu:** `VITE_BASE_URL` Environment Variable
+  - Wird in `.env` gesetzt (privat, nicht in Git)
+  - Beispiel: `VITE_BASE_URL="https://kfzlotti.example.com"`
+- **Build-Script:** `scripts/replace-domain.ts`
+  - Ersetzt automatisch `[YOUR-DOMAIN]` in `sitemap.xml`
+  - Ersetzt automatisch `[YOUR-DOMAIN]` in `robots.txt`
+  - Validiert URL-Format
+  - Warnt bei fehlender Variable (bricht Build nicht ab)
+
+### 📦 Technische Änderungen
+
+- **Build-Pipeline erweitert:**
+  ```bash
+  1. prebuild: build:data
+  2. vite build
+  3. replace-domain ← NEU!
+  4. fix-production-csp
+  ```
+- **`.env.example`:** VITE_BASE_URL Dokumentation hinzugefügt
+- **package.json:** Build-Script aktualisiert
+- **Generierte Dateien:** index.transformed.json & generated-fallback.ts aktualisiert
+
+### 🎯 Vorteile
+
+- ✅ Keine manuelle Bearbeitung von sitemap.xml mehr nötig
+- ✅ `.env` bleibt privat (nicht in Git)
+- ✅ Verschiedene Domains für dev/staging/prod möglich
+- ✅ HashRouter-URLs in Sitemap korrekt
+- ✅ Hard-Reload funktioniert auf allen Seiten
+
+---
+
 ## [2.4.0] - 2025-12-31
 
 **🌍 Legacy Browser Support - Android 4.4+ Kompatibilität**
