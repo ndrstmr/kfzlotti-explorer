@@ -46,9 +46,10 @@ export default defineConfig(({ mode }) => ({
           },
           {
             urlPattern: /\/data\/.+\.json$/,
-            handler: "CacheFirst",
+            handler: "NetworkFirst",
             options: {
               cacheName: "kfz-data-cache",
+              networkTimeoutSeconds: 5, // Fallback to cache after 5s
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
