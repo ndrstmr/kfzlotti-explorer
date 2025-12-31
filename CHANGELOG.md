@@ -31,9 +31,10 @@ Diese Version führt Environment Variables ein, um persönliche Daten (Impressum
 **Vorher:**
 ```typescript
 legal: {
-  name: "Andreas Teumer",  // ❌ Hardcoded im Code
-  street: "Am Ehrenmal 12",
-  // ...
+  name: "Max Mustermann",  // ❌ Hardcoded im Code
+  street: "Musterstraße 123",
+  city: "12345 Musterstadt",
+  email: "max@example.com",
 }
 ```
 
@@ -42,7 +43,8 @@ legal: {
 legal: {
   name: import.meta.env.VITE_LEGAL_NAME || "[Dein Name]",
   street: import.meta.env.VITE_LEGAL_STREET || "[Straße]",
-  // ...
+  city: import.meta.env.VITE_LEGAL_CITY || "[PLZ Ort]",
+  email: import.meta.env.VITE_LEGAL_EMAIL || "[email@example.com]",
 }
 ```
 
