@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, User, Moon, Sun, Monitor, RotateCcw, Trash2, Trophy, AlertTriangle, RefreshCw, Loader2, WifiOff } from 'lucide-react';
+import { ArrowLeft, User, Moon, Sun, Monitor, RotateCcw, Trash2, Trophy, AlertTriangle, RefreshCw, Loader2, WifiOff, Map, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +14,7 @@ import type { UserProgress } from '@/data/schema';
 import { useToast } from '@/hooks/use-toast';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useUpdate } from '@/contexts/UpdateContext';
+import { useKfzData } from '@/hooks/useKfzData';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,6 +32,7 @@ const Settings = () => {
   const [displayName, setDisplayName] = useState('');
   const { toast } = useToast();
   const { settings, updateDarkMode, updateDisplayName, updateOfflineMode } = useSettings();
+  const { mapAvailable } = useKfzData();
   const {
     dataVersion,
     newVersion,
@@ -211,6 +213,22 @@ const Settings = () => {
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Datenversion:</span>
               <span className="font-mono text-xs">{dataVersion || 'Lädt...'}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Karten-Daten:</span>
+              <span className={`flex items-center gap-1 text-xs font-medium ${mapAvailable ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                {mapAvailable ? (
+                  <>
+                    <Map className="w-3 h-3" />
+                    Verfügbar
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="w-3 h-3" />
+                    Nicht verfügbar
+                  </>
+                )}
+              </span>
             </div>
             {newVersion && (
               <div className="flex justify-between text-sm">

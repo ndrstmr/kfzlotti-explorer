@@ -19,6 +19,29 @@ interface DataState {
   isLoading: boolean;
   error: string | null;
   isOffline: boolean;
+  mapAvailable: boolean; // Indicates if valid geodata is available
+}
+
+/**
+ * Validates if TopoJSON contains actual geometry data
+ */
+function isValidTopoJson(data: any): boolean {
+  return Boolean(
+    data?.objects?.kreise?.geometries &&
+    Array.isArray(data.objects.kreise.geometries) &&
+    data.objects.kreise.geometries.length > 0
+  );
+}
+
+/**
+ * Validates if seats data contains actual seat information
+ */
+function isValidSeatsData(data: any): boolean {
+  return Boolean(
+    data?.seats &&
+    typeof data.seats === 'object' &&
+    Object.keys(data.seats).length > 0
+  );
 }
 
 export function useKfzData() {
@@ -30,6 +53,7 @@ export function useKfzData() {
     isLoading: true,
     error: null,
     isOffline: !navigator.onLine,
+    mapAvailable: false,
   });
 
   const loadData = useCallback(async () => {
@@ -90,8 +114,16 @@ export function useKfzData() {
         try {
           const topoResponse = await fetch('/data/kfz250.topo.json');
           if (topoResponse.ok) {
-            topoJson = await topoResponse.json();
-            await setCachedData(CACHE_KEYS.TOPO, topoJson);
+            const fetchedTopo = await topoResponse.json();
+
+            // Validate TopoJSON has actual geometries before caching
+            if (isValidTopoJson(fetchedTopo)) {
+              topoJson = fetchedTopo;
+              await setCachedData(CACHE_KEYS.TOPO, topoJson);
+            } else {
+              console.warn('TopoJSON is empty (no geometries), skipping cache. Map features will not be available.');
+              topoJson = null;
+            }
           }
         } catch (e) {
           console.log('Could not fetch topo.json, using cache/fallback');
@@ -103,10 +135,18 @@ export function useKfzData() {
         try {
           const seatsResponse = await fetch('/data/seats.json');
           if (seatsResponse.ok) {
-            seats = await seatsResponse.json();
-            await setCachedData(CACHE_KEYS.SEATS, seats, {
-              ttlSeconds: 30 * 24 * 60 * 60, // 30 days
-            });
+            const fetchedSeats = await seatsResponse.json();
+
+            // Validate seats data has actual content before caching
+            if (isValidSeatsData(fetchedSeats)) {
+              seats = fetchedSeats;
+              await setCachedData(CACHE_KEYS.SEATS, seats, {
+                ttlSeconds: 30 * 24 * 60 * 60, // 30 days
+              });
+            } else {
+              console.warn('Seats data is empty, skipping cache. District capital markers will not be available.');
+              seats = null;
+            }
           }
         } catch (e) {
           console.log('Seats data not available (optional)');
@@ -143,6 +183,7 @@ export function useKfzData() {
         isLoading: false,
         error: null,
         isOffline: !navigator.onLine,
+        mapAvailable: isValidTopoJson(topoJson),
       });
     } catch (error) {
       console.error('Error loading KFZ data:', error);
@@ -156,6 +197,7 @@ export function useKfzData() {
         isLoading: false,
         error: 'Daten konnten nicht vollständig geladen werden. Einige Funktionen sind eingeschränkt.',
         isOffline: !navigator.onLine,
+        mapAvailable: false,
       });
     }
   }, []);
