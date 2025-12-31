@@ -617,7 +617,7 @@ const BattleQuiz = ({ onBack }: BattleQuizProps) => {
               const isCorrectAnswer = option === question.correctAnswer;
               const showResult = selectedAnswer !== null;
               
-              let buttonClass = 'bg-card hover:bg-muted border-2 border-border';
+              let buttonClass = 'bg-card [@media(hover:hover)]:hover:bg-muted border-2 border-border';
               if (showResult) {
                 if (isCorrectAnswer) {
                   buttonClass = 'bg-success/20 border-2 border-success';

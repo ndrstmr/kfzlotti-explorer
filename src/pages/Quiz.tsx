@@ -555,7 +555,7 @@ const Quiz = () => {
                 let buttonClass = "w-full py-5 text-lg font-display font-semibold rounded-2xl border-2 transition-all active:bg-background ";
 
                 if (selectedAnswer === null) {
-                  buttonClass += "border-border hover:border-primary hover:bg-primary/10";
+                  buttonClass += "border-border [@media(hover:hover)]:hover:border-primary [@media(hover:hover)]:hover:bg-primary/10";
                 } else if (option === question.correctAnswer) {
                   buttonClass += "border-success bg-success/20 text-success";
                 } else if (option === selectedAnswer) {
