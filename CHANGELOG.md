@@ -7,6 +7,145 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [2.4.0] - 2025-12-31
+
+**🌍 Legacy Browser Support - Android 4.4+ Kompatibilität**
+
+Diese Version macht die PWA auf älteren Android-Geräten lauffähig.
+
+### ✨ Neue Features
+
+#### Legacy Browser Support
+- **Android 4.4+ Unterstützung** (Chromium 30+, 2013)
+- **iOS 9+ / Safari 9+ Unterstützung** (2015)
+- **Dual Build System:**
+  - Modern Build (ES2020): 427 KB für aktuelle Browser
+  - Legacy Build (ES5): 600 KB für alte Browser
+- **Polyfills automatisch:** Promise, fetch, Array-Methoden, etc.
+- **Smart Script Loading:** Browser laden nur die passende Version
+
+#### Service Worker Graceful Degradation
+- **Automatische Erkennung** ob Service Worker verfügbar ist
+- **Alte Browser:** App läuft ohne SW (eingeschränkte Offline-Features)
+- **Moderne Browser:** Volle PWA-Funktionalität (unverändert)
+- **Console-Warnung** bei fehlendem SW-Support (für Debugging)
+
+### 🔧 Bug Fixes
+
+- **Fix:** White Screen auf Android 4.4.4 behoben
+  - ES2020 Code wurde nicht verstanden → Transpilierung zu ES5
+  - Fehlende Polyfills ergänzt (Promise, fetch, etc.)
+- **Fix:** Service Worker Crash auf alten Geräten
+  - Prüfung vor Registrierung hinzugefügt
+  - Dummy-Funktion für alte Browser (Kompatibilität)
+
+### 📦 Technische Änderungen
+
+- **Dependencies:** `@vitejs/plugin-legacy@7.2.1`, `terser@5.44.1`
+- **vite.config.ts:** Legacy Plugin mit Browser-Targets konfiguriert
+- **package.json:** Browserslist für Android 4.4+, Chrome 30+, iOS 9+
+- **src/main.tsx:** Service Worker Check vor Registrierung
+- **Build-Zeit:** ~4s → ~15s (Dual Build)
+- **Bundle-Größe (modern):** Unverändert (427 KB / 138 KB gzip)
+- **Bundle-Größe (legacy):** 600 KB / 177 KB gzip
+
+### 📊 Browser-Support
+
+**Vorher:**
+- Chrome 90+ ✅
+- Safari 15+ ✅
+- Firefox 88+ ✅
+- Android 4.4 ❌ (White Screen)
+
+**Jetzt:**
+- Chrome 30+ ✅ (2013)
+- Safari 9+ ✅ (2015)
+- iOS 9+ ✅ (2015)
+- Android 4.4+ ✅ (KitKat, 2013)
+- Alle modernen Browser ✅ (unverändert)
+
+### ⚠️ Bekannte Einschränkungen
+
+**Android 4.4 Geräte:**
+- ⚠️ Kein Service Worker (nicht unterstützt in Chromium 30)
+- ⚠️ Eingeschränkte Offline-Funktionalität
+- ⚠️ Größerer Download (~600 KB statt ~427 KB)
+- ✅ App funktioniert vollständig (Suche, Quiz, etc.)
+- ✅ Daten werden trotzdem gecacht (IndexedDB)
+
+---
+
+## [2.3.3] - 2025-12-31
+
+**🛡️ Data Validation & UI Feedback**
+
+Diese Version verhindert Caching von leeren Geodaten-Platzhaltern.
+
+### 🔧 Bug Fixes
+
+#### Empty Geodata Validation (DATA-01 - Critical)
+- **Fix:** Leere `kfz250.topo.json` (128 Bytes) wird nicht mehr gecacht
+  - Validierung prüft `geometries.length > 0` vor Cache-Write
+  - Console-Warnung wenn Geodaten leer sind
+- **Fix:** Leere `seats.json` (128 Bytes) wird nicht mehr gecacht
+  - Validierung prüft `Object.keys(seats).length > 0`
+- **Impact:** Karten-Feature bleibt funktionsfähig sobald echte Geodaten verfügbar sind
+
+### ✨ Neue Features
+
+#### Map Availability Status UI
+- **Settings-Page:** Zeigt Karten-Verfügbarkeit an
+  - ✅ Grün: "Karten-Daten: Verfügbar" (wenn TopoJSON gültig)
+  - ❌ Gelb: "Karten-Daten: Nicht verfügbar" (wenn TopoJSON leer)
+- **useKfzData Hook:** Neues `mapAvailable` Flag
+- **Transparenz:** User sieht sofort ob Karte funktioniert
+
+### 📦 Technische Änderungen
+
+- **src/hooks/useKfzData.ts:**
+  - `isValidTopoJson()` Validierungsfunktion
+  - `isValidSeatsData()` Validierungsfunktion
+  - `mapAvailable` Flag in DataState
+- **src/pages/Settings.tsx:**
+  - Map-Status-Anzeige mit Icons (Map, XCircle)
+  - Import von `useKfzData` Hook
+- **src/data/schema.ts:** DataState erweitert um `mapAvailable: boolean`
+
+---
+
+## [2.3.2] - 2025-12-31
+
+**⚡ Service Worker Cache Strategy Fix**
+
+Diese Version behebt kritisches Caching-Problem bei Daten-Updates.
+
+### 🔧 Bug Fixes
+
+#### Service Worker blockiert Daten-Updates (ARCH-01 - Critical)
+- **Fix:** Cache Strategy: `CacheFirst` → `NetworkFirst`
+  - Daten-Updates erreichen App sofort wenn online
+  - 5s Network-Timeout für schnellen Offline-Fallback
+  - Cache wird weiterhin genutzt (Offline-First bleibt erhalten)
+- **Fix:** Version-Check funktioniert jetzt korrekt
+  - `If-None-Match` Header erreicht Server (nicht von SW blockiert)
+  - `dataVersion` Comparison funktioniert wie geplant
+- **Impact:** Nutzer erhalten Daten-Updates ohne App-Neuinstallation
+
+#### Offline-Mode Kompatibilität
+- **Bestätigt:** `offlineMode` Setting funktioniert weiterhin
+  - Wenn aktiviert: App fetcht nie → NetworkFirst irrelevant
+  - Service Worker wird bei offlineMode nicht genutzt
+  - App-Level-Kontrolle bleibt dominant
+
+### 📦 Technische Änderungen
+
+- **vite.config.ts:**
+  - `/data/*.json` Handler: `CacheFirst` → `NetworkFirst`
+  - `networkTimeoutSeconds: 5` für schnellen Fallback
+  - Cache-Expiration unverändert (30 Tage)
+
+---
+
 ## [2.3.1] - 2025-12-31
 
 **🚀 Universal Deployment & Critical Bug Fixes**
