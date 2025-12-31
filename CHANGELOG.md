@@ -596,24 +596,14 @@ Diese Version bringt massive Performance-Verbesserungen, vollständige Offline-U
 - Neue Features sind opt-in
 - Schema-Erweiterungen sind optional
 
-### 🎯 Nächste Schritte (Roadmap 2.x)
+### 🎯 Nächste Schritte
 
-Geplant für zukünftige Minor-Releases:
+Für die vollständige Roadmap mit geplanten Features siehe **[ROADMAP.md](ROADMAP.md)**.
 
-**2.1.0:**
-- Kreisstadt-Daten Integration (Schema bereits vorbereitet)
-- Bundesland-Statistiken
-- Erweiterte Filter-Optionen
-
-**2.2.0:**
-- Bevölkerungs-Daten aus Statistisches Bundesamt
-- Flächen-Informationen (km²)
-- Vergleichs-Features (größte/kleinste Kreise)
-
-**2.3.0:**
-- Wikidata-Integration für zusätzliche Informationen
-- Links zu offiziellen Kreiswebsites
-- Erweiterte Code-Details (historische Kennzeichen)
+**Highlights der kommenden Releases:**
+- **v2.4.0:** Location-Based Features (Entfernungsanzeige, lokaler Quiz-Modus)
+- **v2.5.0:** Interactive Map Features (Deutschland-Karte, geografisches Quiz)
+- **v2.6.0:** Educational Data & Statistics (Bevölkerung, Größenvergleiche)
 
 ### 👥 Mitwirkende
 
