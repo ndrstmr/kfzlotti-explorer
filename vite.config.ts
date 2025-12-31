@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
+import legacy from "@vitejs/plugin-legacy";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
@@ -13,6 +14,27 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === "development" && componentTagger(),
+    legacy({
+      targets: [
+        'Android >= 4.4', // Android 4.4+ (Chromium 30+)
+        'Chrome >= 30',   // Chrome 30+ (2013)
+        'iOS >= 9',       // iOS Safari 9+ (2015)
+        'Safari >= 9',    // Safari 9+ (2015)
+      ],
+      additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
+      renderLegacyChunks: true,
+      polyfills: [
+        'es.promise',
+        'es.array.iterator',
+        'es.object.assign',
+        'es.string.includes',
+        'es.array.includes',
+        'es.array.find',
+        'es.array.from',
+        'es.symbol',
+      ],
+      modernPolyfills: false, // Don't polyfill for modern browsers
+    }),
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["icons/*.png", "icons/*.svg", "data/*.json"],
