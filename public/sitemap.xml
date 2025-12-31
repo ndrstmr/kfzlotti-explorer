@@ -15,24 +15,24 @@
 
   <!-- Quiz Page -->
   <url>
-    <loc>[YOUR-DOMAIN]/quiz</loc>
-    <lastmod>2025-01-01</lastmod>
+    <loc>[YOUR-DOMAIN]/#/quiz</loc>
+    <lastmod>2025-12-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- Info & Legal Page -->
   <url>
-    <loc>[YOUR-DOMAIN]/info</loc>
-    <lastmod>2025-01-01</lastmod>
+    <loc>[YOUR-DOMAIN]/#/info</loc>
+    <lastmod>2025-12-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <!-- Settings Page -->
   <url>
-    <loc>[YOUR-DOMAIN]/settings</loc>
-    <lastmod>2025-01-01</lastmod>
+    <loc>[YOUR-DOMAIN]/#/settings</loc>
+    <lastmod>2025-12-31</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
