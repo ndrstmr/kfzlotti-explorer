@@ -7,6 +7,40 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [2.4.2] - 2025-12-31
+
+**🔒 Security Fix - CSP Legacy Plugin Compatibility**
+
+Patch-Release zur Behebung von CSP-Violations durch Legacy Browser Support.
+
+### 🔧 Bug Fixes
+
+#### CSP Violations für Legacy Plugin Inline-Scripts
+- **Fix:** Content Security Policy blockierte Vite Legacy Plugin Scripts
+  - Browser-Detection-Scripts wurden als "unsafe-inline" gewertet
+  - CSP-Violations in Console auf allen Seiten
+- **Lösung:** Script-Hashes zur Production CSP hinzugefügt
+  - `sha256-ZxAi3a7m9Mzbc+Z1LGuCCK5Xee6reDkEPRas66H9KSo=`
+  - `sha256-+5XkZFazzJo8n0iOP4ti/cLCMUudTf//Mzkb7xNPXIc=`
+- **Impact:** Keine CSP-Violations mehr, Legacy Browser Support funktioniert einwandfrei
+
+### 📦 Technische Änderungen
+
+- **scripts/fix-production-csp.ts:** Script-Hashes für Legacy Plugin hinzugefügt
+- **Security:** Strikte CSP bleibt erhalten (kein `unsafe-inline` nötig)
+- **Compatibility:** Android 4.4+ und iOS 9+ funktionieren weiterhin
+
+### 🎯 Warum wichtig?
+
+Die Legacy Plugin Inline-Scripts sind **notwendig** für:
+- Browser-Capability-Detection (modern vs. legacy)
+- Automatisches Laden des korrekten Bundles
+- Android 4.4+ und iOS 9+ Support
+
+Ohne diese Fix würden die Scripts blockiert → Android 4.4 würde wieder White Screen zeigen.
+
+---
+
 ## [2.4.1] - 2025-12-31
 
 **🔧 Bug Fixes & Build Improvements**

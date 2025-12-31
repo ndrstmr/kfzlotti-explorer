@@ -18,7 +18,8 @@ const DIST_INDEX = join(process.cwd(), 'dist', 'index.html');
 const DEV_CSP = /content="default-src 'self'; script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval';[^"]+"/;
 
 // Production CSP (ohne unsafe-eval - strikte Sicherheit, self-hosted fonts)
-const PROD_CSP = `content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';"`;
+// Script-hashes für Vite Legacy Plugin inline scripts (browser detection)
+const PROD_CSP = `content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'sha256-ZxAi3a7m9Mzbc+Z1LGuCCK5Xee6reDkEPRas66H9KSo=' 'sha256-+5XkZFazzJo8n0iOP4ti/cLCMUudTf//Mzkb7xNPXIc='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';"`;
 
 console.log('🔒 Fixing Production CSP in dist/index.html...');
 

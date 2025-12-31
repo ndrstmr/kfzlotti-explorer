@@ -1,7 +1,7 @@
 {
   "name": "KFZlotti: Kürzel rein, Kreis raus!",
   "short_name": "KFZlotti",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "description": "Entdecke deutsche KFZ-Kennzeichen! Gib ein Kürzel ein und finde heraus, welcher Landkreis dahinter steckt.",
   "start_url": "/",
   "display": "standalone",
