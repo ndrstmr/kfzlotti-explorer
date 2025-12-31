@@ -45,6 +45,7 @@ const COUNT_OPTIONS = [10, 20, 30, 50];
 const BattleQuiz = ({ onBack }: BattleQuizProps) => {
   const { index, isLoading } = useKfzData();
   const { settings } = useSettings();
+  const defaultPlayerName = settings?.displayName || '';
 
   // Setup state
   const [playerNames, setPlayerNames] = useState<string[]>(['']);

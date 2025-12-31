@@ -29,9 +29,14 @@ dev-dist
 *.sln
 *.sw?
 
+# GEMINI Code specific files
+GEMINI.md
+
 # Claude Code specific files
 CLAUDE.md
-CODE_REVIEW.md
+
+# Code Review files
+docs/code-reviews/
 
 # Local temporary files (screenshots, etc.)
 tmp/

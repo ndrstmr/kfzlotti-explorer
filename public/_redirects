@@ -1,0 +1,6 @@
+# Redirect legacy favicon.ico requests to SVG
+/favicon.ico    /icons/favicon.svg   200
+
+# SPA fallback - redirect all routes to index.html
+# This allows client-side routing to work on page refresh
+/*    /index.html   200

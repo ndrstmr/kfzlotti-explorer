@@ -21,13 +21,19 @@ const updateSW = registerSW({
   onRegisteredSW(swScriptUrl, registration) {
     console.log('Service Worker registered:', swScriptUrl);
 
-    // Check for updates periodically (every 60 seconds)
+    // Check for updates periodically (every 60 minutes)
     if (registration) {
-      setInterval(() => {
-        registration.update().catch(err => {
-          console.error('Failed to check for updates:', err);
-        });
-      }, 60000);
+      setInterval(async () => {
+        try {
+          // Only update if service worker is active and not in an invalid state
+          if (registration.active && navigator.onLine) {
+            await registration.update();
+          }
+        } catch (err) {
+          // Silently fail - update checks are non-critical
+          // Error might occur when SW is updating or in transitional state
+        }
+      }, 3600000); // 60 minutes instead of 60 seconds
     }
   },
 });
