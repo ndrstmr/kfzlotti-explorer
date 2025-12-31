@@ -7,6 +7,67 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [2.3.1] - 2025-12-31
+
+**🚀 Universal Deployment & Critical Bug Fixes**
+
+Diese Version macht die PWA vollständig portabel und behebt kritische Fehler.
+
+### 🔧 Bug Fixes
+
+#### Battle Quiz
+- **Fix:** `ReferenceError: defaultPlayerName is not defined` behoben
+  - Variable wird jetzt korrekt aus `settings?.displayName` geladen
+  - Verhindert Absturz beim Navigieren zum Battle-Modus
+
+#### Service Worker Updates
+- **Fix:** InvalidStateError bei Update-Checks behoben
+  - Update-Interval: 60 Sekunden → 60 Minuten (weniger aggressiv)
+  - State-Check vor Update-Aufruf (nur wenn SW aktiv)
+  - Online-Check vor Update (spart Ressourcen)
+  - Silent fail für non-critical Update-Checks
+
+#### Performance
+- **Fix:** Preload-Warning für `index.json` behoben
+  - Preload aktualisiert: `index.json` → `index.transformed.json`
+  - Datei wird jetzt tatsächlich genutzt
+
+### ✨ Refactoring
+
+#### Hash-basiertes Routing (Breaking Change für URLs)
+- **Umstellung:** BrowserRouter → HashRouter
+- **URLs vorher:** `/quiz`, `/info`, `/settings`
+- **URLs jetzt:** `/#/quiz`, `/#/info`, `/#/settings`
+
+**Vorteile:**
+- ✅ Funktioniert auf **jedem** Static-File-Server
+- ✅ Keine Server-Konfiguration nötig (nginx, Apache, etc.)
+- ✅ Deployment: `dist/` hochladen → fertig
+- ✅ Open-Source-freundlich (contributors brauchen keine Server-Config)
+
+#### Favicon
+- **Neu:** Echtes `favicon.ico` (1.4KB) generiert aus SVG
+- **Fix:** 404-Fehler für legacy `/favicon.ico` Requests behoben
+
+### 📦 Technische Änderungen
+
+- `src/App.tsx`: BrowserRouter → HashRouter
+- `public/favicon.ico`: Neu erstellt (1.4KB PNG)
+- `vercel.json`: Rewrites entfernt (nur Headers behalten)
+- `public/_redirects`: Entfernt (nicht mehr nötig)
+- `index.html`: Preload auf `index.transformed.json` aktualisiert
+- `src/main.tsx`: Service Worker Update-Logik verbessert
+- `src/components/BattleQuiz.tsx`: defaultPlayerName Variable definiert
+
+### ⚠️ Breaking Changes
+
+**URL-Format:**
+- Alte URLs (`/quiz`) führen jetzt zur 404-Seite
+- Neue URLs verwenden Hash (`/#/quiz`)
+- **Migration:** Keine User-Aktion nötig - alte Links öffnen Home, Navigation funktioniert
+
+---
+
 ## [2.3.0] - 2025-12-30
 
 **🔧 Open Source & Privacy-First Configuration**
@@ -665,6 +726,7 @@ Keine unveröffentlichten Änderungen.
 
 ---
 
+[2.3.1]: https://github.com/ndrstmr/kfzlotti-explorer/releases/tag/v2.3.1
 [2.3.0]: https://github.com/ndrstmr/kfzlotti-explorer/releases/tag/v2.3.0
 [2.2.1]: https://github.com/ndrstmr/kfzlotti-explorer/releases/tag/v2.2.1
 [2.2.0]: https://github.com/ndrstmr/kfzlotti-explorer/releases/tag/v2.2.0
