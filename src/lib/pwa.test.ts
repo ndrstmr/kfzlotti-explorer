@@ -300,9 +300,11 @@ describe('PWA Library', () => {
       const { result } = renderHook(() => useInstallPrompt());
 
       // Simulate beforeinstallprompt event
-      const mockEvent = new Event('beforeinstallprompt') as any;
-      mockEvent.prompt = vi.fn();
-      mockEvent.userChoice = Promise.resolve({ outcome: 'accepted' });
+      const mockEvent = new Event('beforeinstallprompt');
+      Object.assign(mockEvent, {
+        prompt: vi.fn(),
+        userChoice: Promise.resolve({ outcome: 'accepted' }),
+      });
 
       act(() => {
         globalThis.window.dispatchEvent(mockEvent);
@@ -349,9 +351,11 @@ describe('PWA Library', () => {
       const { result } = renderHook(() => useInstallPrompt());
 
       const mockPrompt = vi.fn();
-      const mockEvent = new Event('beforeinstallprompt') as any;
-      mockEvent.prompt = mockPrompt;
-      mockEvent.userChoice = Promise.resolve({ outcome: 'accepted' });
+      const mockEvent = new Event('beforeinstallprompt');
+      Object.assign(mockEvent, {
+        prompt: mockPrompt,
+        userChoice: Promise.resolve({ outcome: 'accepted' }),
+      });
 
       act(() => {
         globalThis.window.dispatchEvent(mockEvent);
@@ -374,9 +378,11 @@ describe('PWA Library', () => {
       const { result } = renderHook(() => useInstallPrompt());
 
       const mockPrompt = vi.fn();
-      const mockEvent = new Event('beforeinstallprompt') as any;
-      mockEvent.prompt = mockPrompt;
-      mockEvent.userChoice = Promise.resolve({ outcome: 'dismissed' });
+      const mockEvent = new Event('beforeinstallprompt');
+      Object.assign(mockEvent, {
+        prompt: mockPrompt,
+        userChoice: Promise.resolve({ outcome: 'dismissed' }),
+      });
 
       act(() => {
         globalThis.window.dispatchEvent(mockEvent);
@@ -397,15 +403,20 @@ describe('PWA Library', () => {
 
   describe('registerServiceWorker', () => {
     it('should return null if service workers not supported', async () => {
-      const originalServiceWorker = (navigator as any).serviceWorker;
-      delete (navigator as any).serviceWorker;
+      const originalServiceWorker = navigator.serviceWorker;
+      // @ts-expect-error - Testing missing service worker
+      delete navigator.serviceWorker;
 
       const registration = await registerServiceWorker();
 
       expect(registration).toBeNull();
 
       // Restore
-      (navigator as any).serviceWorker = originalServiceWorker;
+      Object.defineProperty(navigator, 'serviceWorker', {
+        value: originalServiceWorker,
+        writable: true,
+        configurable: true,
+      });
     });
 
     it('should register service worker successfully', async () => {

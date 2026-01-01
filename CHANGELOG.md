@@ -7,6 +7,64 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [2.4.4] - 2026-01-01
+
+**🧪 Comprehensive Test Coverage for Critical Paths**
+
+Patch-Release mit umfassender Test-Abdeckung für alle kritischen Library-Funktionen.
+
+### ✨ Neue Features
+
+#### Vollständige Test-Suite für kritische Funktionen
+- **storage.test.ts (26 Tests):** IndexedDB/Dexie Storage Layer
+  - Cache-Management (get/set/metadata/TTL/expiration)
+  - Daten-Migration (Schema v1→v2→v3, alte Formate erkennen)
+  - User Progress (Badges, Streaks, Quiz-Tracking)
+  - Badge-Freischaltungs-Logik (first_search, ten_searches, streak_3, quiz_master)
+- **geo.test.ts (30 Tests):** Geospatial Functions
+  - Haversine Distance Calculations (Berlin↔München, Hamburg↔Frankfurt)
+  - Bounding Boxes & Centroids (Polygone, MultiPolygone, Holes)
+  - TopoJSON→GeoJSON Conversion (Validierung, Error-Handling)
+- **pwa.test.ts (30 Tests):** PWA Utilities & Hooks
+  - Device Detection (iOS, Android, Safari, Chrome)
+  - Install Prompt Handling (beforeinstallprompt, appinstalled Events)
+  - Online/Offline Status Tracking
+  - Service Worker Registration
+
+#### Test-Infrastruktur
+- **Vitest Setup File:** fake-indexeddb Polyfill für alle Tests
+- **Test Command Fix:** `npm test` nutzt jetzt `npx vitest` statt `bun test`
+  - Problem: `bun test` nutzte bun's eigenen Test-Runner, nicht vitest
+  - Lösung: Expliziter `npx vitest run` in package.json
+- **Total:** 135 Tests passing (5 Test-Dateien)
+  - storage: 26, geo: 30, pwa: 30, normalize: 28, search: 21
+
+### 🔧 Code Quality
+
+#### Type Safety in Tests
+- **pwa.test.ts:** `as any` Types durch korrekte Type-Casts ersetzt
+  - `Object.assign()` für Event-Mocking
+  - `@ts-expect-error` Comments für bewusste Type-Violations
+  - Konforme mit `@typescript-eslint/no-explicit-any` Regel
+
+### 📦 Technische Änderungen
+
+- **Dependencies:**
+  - `fake-indexeddb@6.2.5` - IndexedDB Polyfill für Tests
+  - `@testing-library/react@16.3.1` - React Hook Testing
+- **Konfiguration:**
+  - `vitest.config.ts`: Setup-File für fake-indexeddb
+  - `package.json`: Test-Scripts mit `npx vitest`
+
+### 🎯 Abgeschlossene TODOs
+
+- **TEST-01:** Comprehensive Test Coverage ✅
+- **TEST-02:** Storage Layer Tests ✅
+- **TEST-03:** Geo Layer Tests ✅
+- **TEST-04:** PWA Hooks Tests ✅
+
+---
+
 ## [2.4.3] - 2026-01-01
 
 **🛠️ Development Quality & Type Safety Improvements**
