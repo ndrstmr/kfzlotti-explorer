@@ -106,16 +106,27 @@ export function getPolygonCentroid(
  * Convert TopoJSON to GeoJSON features
  */
 export async function topoJsonToGeoJson(
-  topoJson: { objects: Record<string, unknown>; [key: string]: unknown },
+  topoJson: unknown,
   objectName: string = 'kreise'
 ): Promise<GeoJSON.FeatureCollection> {
   const topojsonClient = await import('topojson-client');
   
-  if (!topoJson.objects || !topoJson.objects[objectName]) {
+  // Type guard for TopoJSON structure
+  const topo = topoJson as { type?: string; objects?: Record<string, unknown>; arcs?: unknown[] };
+  
+  if (!topo || topo.type !== 'Topology' || !topo.objects || !topo.arcs) {
+    throw new Error('Invalid TopoJSON structure');
+  }
+  
+  if (!topo.objects[objectName]) {
     throw new Error(`Object "${objectName}" not found in TopoJSON`);
   }
 
-  const result = topojsonClient.feature(topoJson, topoJson.objects[objectName]) as unknown;
+  // Cast to proper Topology type for topojson-client
+  const topology = topoJson as Parameters<typeof topojsonClient.feature>[0];
+  const geometryObject = topo.objects[objectName] as Parameters<typeof topojsonClient.feature>[1];
+  
+  const result = topojsonClient.feature(topology, geometryObject);
   
   // Check if result has 'features' property (FeatureCollection)
   if (result && typeof result === 'object' && 'features' in result) {

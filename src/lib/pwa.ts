@@ -94,7 +94,7 @@ export function useInstallPrompt(): {
     
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e);
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
     
     const handleAppInstalled = () => {

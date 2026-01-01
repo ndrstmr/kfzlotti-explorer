@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { getUserSettings, updateUserSettings as updateUserSettingsDb, type UserSettings } from '@/lib/storage';
+import { getUserSettings, updateUserSettings as updateUserSettingsDb } from '@/lib/storage';
+import type { UserSettings } from '@/data/schema';
 
 interface SettingsContextType {
   settings: UserSettings | null;
