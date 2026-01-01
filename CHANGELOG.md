@@ -7,6 +7,70 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [2.4.3] - 2026-01-01
+
+**🛠️ Development Quality & Type Safety Improvements**
+
+Patch-Release mit wichtigen Verbesserungen für Code-Qualität und Entwickler-Workflow.
+
+### ✨ Neue Features
+
+#### Git Hooks für lokale Qualitätssicherung
+- **Pre-Commit Hook:** Führt ESLint automatisch vor jedem Commit aus
+  - Blockiert Commits bei Linter-Fehlern
+  - Verhindert fehlerhafte Code-Uploads zu GitHub
+- **Pre-Push Hook:** Führt ESLint + Production Build vor jedem Push aus
+  - Blockiert Push bei Linter-Fehlern oder Build-Fehlern
+  - Stellt sicher, dass nur deploybare Versionen gepusht werden
+- **Automatische Installation:** Hooks werden bei `npm install` / `bun install` installiert
+- **Manuelle Installation:** `npm run hooks:install`
+- **Dokumentation:** CONTRIBUTING.md erweitert mit Git Hooks Sektion
+
+#### Selective Merge: Lovable-Bot Type Safety Verbesserungen
+- **vite-env.d.ts:** Type Declarations für `virtual:pwa-register` hinzugefügt
+  - Verbessert TypeScript-Support für PWA-Module
+  - Eliminiert Type-Errors beim Service Worker Import
+- **geo.ts:** Robustere TopoJSON Validierung
+  - Runtime-Checks: `type: 'Topology'`, `objects`, `arcs` Validierung
+  - Verhindert Crashes bei invaliden Geodaten
+  - Bessere Type Safety mit `unknown` + Type Guards
+- **pwa.ts:** Expliziter Type Cast für `BeforeInstallPromptEvent`
+- **SettingsContext.tsx:** Importiert `UserSettings` direkt aus `schema.ts`
+  - Klare Separation: Schema-Definitionen in schema.ts, Storage-Funktionen in storage.ts
+
+### 🔧 Bug Fixes
+
+#### Linter-Fehler in Validierungsfunktionen
+- **Fix:** `any` type in `useKfzData.ts` durch `unknown` ersetzt (Zeilen 28, 39)
+  - `isValidTopoJson(data: any)` → `isValidTopoJson(data: unknown)`
+  - `isValidSeatsData(data: any)` → `isValidSeatsData(data: unknown)`
+- **Impact:** ESLint-Regel `@typescript-eslint/no-explicit-any` wird nicht mehr verletzt
+- **Security:** Type Safety bleibt erhalten (Runtime-Validierung funktioniert weiterhin)
+
+### 📦 Technische Änderungen
+
+- **package.json:**
+  - `"prepare": "bash scripts/install-git-hooks.sh || true"` → Automatische Hook-Installation
+  - `"hooks:install": "bash scripts/install-git-hooks.sh"` → Manuelle Installation
+- **scripts/git-hooks/:** Pre-Commit und Pre-Push Hook Templates versioniert
+- **scripts/install-git-hooks.sh:** Installations-Skript für Git Hooks
+- **CONTRIBUTING.md:** Git Hooks Dokumentation hinzugefügt
+- **Generierte Dateien:** index.transformed.json & generated-fallback.ts aktualisiert
+
+### 🎯 Vorteile
+
+- ✅ Kein fehlerhafter Code mehr auf GitHub (Hooks blockieren Push)
+- ✅ Bessere Type Safety (keine `any` types, bessere PWA-Typen)
+- ✅ Robustere Geodaten-Validierung (verhindert Crashes)
+- ✅ Automatisierter Qualitäts-Check bei jedem Commit/Push
+- ✅ Klare Dokumentation für Contributor (CONTRIBUTING.md)
+
+### ⚠️ Breaking Changes
+
+Keine Breaking Changes - alle Änderungen sind rückwärtskompatibel.
+
+---
+
 ## [2.4.2] - 2025-12-31
 
 **🔒 Security Fix - CSP Legacy Plugin Compatibility**

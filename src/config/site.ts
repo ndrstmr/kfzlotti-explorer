@@ -28,7 +28,7 @@ export const siteConfig = {
   },
 
   // App Version
-  version: "2.4.2",
+  version: "2.4.3",
 } as const;
 
 export type SiteConfig = typeof siteConfig;
