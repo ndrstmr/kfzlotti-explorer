@@ -1,0 +1,31 @@
+#!/bin/sh
+# Pre-Push Hook: Run tests and build before pushing
+# This prevents pushing broken code to GitHub
+
+echo "🚀 Running pre-push checks..."
+
+# Run linter (double-check)
+echo "📝 Running ESLint..."
+bun run lint
+if [ $? -ne 0 ]; then
+  echo "❌ Linter failed! Fix the errors before pushing."
+  exit 1
+fi
+
+# Run tests (if test command exists and tests are available)
+if grep -q '"test":' package.json; then
+  echo "🧪 Running tests..."
+  bun run test --run 2>/dev/null || true
+  # Note: Currently no tests configured, so we don't fail on this
+fi
+
+# Run production build to ensure it compiles
+echo "🏗️  Running production build..."
+bun run build
+if [ $? -ne 0 ]; then
+  echo "❌ Build failed! Fix the errors before pushing."
+  exit 1
+fi
+
+echo "✅ Pre-push checks passed!"
+exit 0

@@ -1,0 +1,19 @@
+#!/bin/sh
+# Pre-Commit Hook: Run linter before committing
+# This prevents committing code with linter errors
+
+echo "🔍 Running pre-commit checks..."
+
+# Run linter
+echo "📝 Running ESLint..."
+bun run lint
+
+# Check if linter passed
+if [ $? -ne 0 ]; then
+  echo "❌ Linter failed! Fix the errors before committing."
+  echo "   Run 'bun run lint' to see all errors."
+  exit 1
+fi
+
+echo "✅ Pre-commit checks passed!"
+exit 0

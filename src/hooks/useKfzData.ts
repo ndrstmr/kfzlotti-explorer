@@ -25,7 +25,7 @@ interface DataState {
 /**
  * Validates if TopoJSON contains actual geometry data
  */
-function isValidTopoJson(data: any): boolean {
+function isValidTopoJson(data: unknown): boolean {
   return Boolean(
     data?.objects?.kreise?.geometries &&
     Array.isArray(data.objects.kreise.geometries) &&
@@ -36,7 +36,7 @@ function isValidTopoJson(data: any): boolean {
 /**
  * Validates if seats data contains actual seat information
  */
-function isValidSeatsData(data: any): boolean {
+function isValidSeatsData(data: unknown): boolean {
   return Boolean(
     data?.seats &&
     typeof data.seats === 'object' &&

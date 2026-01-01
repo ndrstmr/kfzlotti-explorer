@@ -14,7 +14,9 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "prepare": "bash scripts/install-git-hooks.sh || true",
+    "hooks:install": "bash scripts/install-git-hooks.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

@@ -9,6 +9,7 @@ Dieses Dokument beschreibt, wie du zum Projekt beitragen kannst.
 - [Verhaltenskodex](#verhaltenskodex)
 - [Wie kann ich beitragen?](#wie-kann-ich-beitragen)
 - [Entwicklungsumgebung](#entwicklungsumgebung)
+  - [Git Hooks](#git-hooks)
 - [Code-Style](#code-style)
 - [Issues erstellen](#issues-erstellen)
 - [Pull Requests](#pull-requests)
@@ -64,6 +65,38 @@ npm run dev
 | `npm run build` | Erstellt den Produktions-Build |
 | `npm run preview` | Zeigt den Build lokal an |
 | `npm run lint` | Prüft den Code auf Fehler |
+| `npm run hooks:install` | Installiert Git Hooks manuell |
+
+### Git Hooks
+
+Das Projekt verwendet Git Hooks, um sicherzustellen, dass nur qualitativ hochwertiger Code committed/gepusht wird:
+
+**Automatische Installation:**
+Git Hooks werden automatisch bei `npm install` / `bun install` installiert.
+
+**Manuelle Installation:**
+```bash
+npm run hooks:install
+# oder
+bun run hooks:install
+```
+
+**Was passiert bei jedem Commit?** (Pre-Commit Hook)
+- ✅ ESLint wird ausgeführt
+- ❌ Commit wird blockiert, wenn Linter-Fehler vorhanden sind
+
+**Was passiert bei jedem Push?** (Pre-Push Hook)
+- ✅ ESLint wird ausgeführt
+- ✅ Produktions-Build wird getestet
+- ❌ Push wird blockiert, wenn Linter-Fehler oder Build-Fehler vorhanden sind
+
+**Hooks überspringen (nicht empfohlen):**
+```bash
+git commit --no-verify  # Überspringt pre-commit
+git push --no-verify    # Überspringt pre-push
+```
+
+⚠️ **Wichtig:** Verwende `--no-verify` nur in Ausnahmefällen! Die Hooks schützen die Code-Qualität.
 
 ## 📝 Code-Style
 
