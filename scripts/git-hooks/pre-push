@@ -15,8 +15,11 @@ fi
 # Run tests (if test command exists and tests are available)
 if grep -q '"test":' package.json; then
   echo "🧪 Running tests..."
-  bun run test --run 2>/dev/null || true
-  # Note: Currently no tests configured, so we don't fail on this
+  bun run test --run
+  if [ $? -ne 0 ]; then
+    echo "❌ Tests failed! Fix the errors before pushing."
+    exit 1
+  fi
 fi
 
 # Run production build to ensure it compiles
