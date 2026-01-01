@@ -15,11 +15,10 @@
     "jsx": "react-jsx",
 
     /* Linting */
-    "strict": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitAny": false,
-    "noFallthroughCasesInSwitch": false,
+    "strict": true,  // Phase 3: Full Strict Mode (inkl. noImplicitAny, strictNullChecks, etc.)
+    "noUnusedLocals": true,  // Phase 4: Warnt bei ungenutzten Variablen
+    "noUnusedParameters": true,  // Phase 4: Warnt bei ungenutzten Parametern
+    "noFallthroughCasesInSwitch": true,  // Phase 4: Verhindert fehlende breaks
 
     "paths": {
       "@/*": ["./src/*"]
