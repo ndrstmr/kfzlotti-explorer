@@ -4,7 +4,6 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, beforeAll } from 'vitest';
-import 'fake-indexeddb/auto'; // Polyfill IndexedDB for testing
 import {
   db,
   CACHE_KEYS,

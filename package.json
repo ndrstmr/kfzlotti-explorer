@@ -12,9 +12,10 @@
     "validate:data": "bun scripts/validate-data.ts",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
+    "test": "npx vitest run",
+    "test:watch": "npx vitest",
+    "test:ui": "npx vitest --ui",
+    "test:coverage": "npx vitest --coverage",
     "prepare": "bash scripts/install-git-hooks.sh || true",
     "hooks:install": "bash scripts/install-git-hooks.sh"
   },
@@ -81,6 +82,8 @@
   "devDependencies": {
     "@eslint/js": "^9.32.0",
     "@tailwindcss/typography": "^0.5.16",
+    "@testing-library/react": "^16.3.1",
+    "@testing-library/react-hooks": "^8.0.1",
     "@types/node": "^22.16.5",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
