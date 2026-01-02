@@ -8,6 +8,8 @@
  * Copy .env.example to .env and fill in your personal data.
  */
 
+import packageJson from '../../package.json';
+
 export const siteConfig = {
   // App Name
   appName: "KFZlotti",
@@ -27,8 +29,8 @@ export const siteConfig = {
     // Add more links as needed
   },
 
-  // App Version
-  version: "2.4.3",
+  // App Version - automatically loaded from package.json
+  version: packageJson.version,
 } as const;
 
 export type SiteConfig = typeof siteConfig;
