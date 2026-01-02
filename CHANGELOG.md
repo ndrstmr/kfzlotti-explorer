@@ -7,6 +7,96 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [2.4.5] - 2026-01-02
+
+**⚡ Performance-Optimierung & PWA-Verbesserungen**
+
+Patch-Release mit signifikanten Performance-Verbesserungen und verbessertem PWA Update-Flow.
+
+### ✨ Neue Features
+
+#### On-Demand Loading für optionale Daten (PERF-02)
+- **useKfzCodeDetails() Hook:** Lazy Loading für Code-Details
+  - `code-details.json` (~15KB) nur geladen wenn Index oder Quiz geöffnet wird
+  - `seats.json` (~8KB) komplett entfernt (unused, dead code)
+  - **Performance-Gewinn:**
+    - Vorher: 2 eager fetches auf JEDER Seite
+    - Nachher: 1 lazy fetch nur wenn benötigt
+    - ~30% weniger initial network requests
+- **6 neue Tests** für useKfzCodeDetails Hook (141 total)
+  - Cache loading, fresh data fetching, offline mode
+  - Error handling, cleanup on unmount
+
+#### User-freundlicher PWA Update-Flow (PWA-01)
+- **registerType: "prompt"** statt "autoUpdate"
+  - Service Worker wartet auf User-Confirmation
+  - Keine Race Conditions mehr während Updates
+- **skipWaiting: false** - sicherer Update-Prozess
+- **clientsClaim: false** - keine sofortige Kontrollübernahme
+- **UpdateBanner** zeigt verfügbare Updates (bereits implementiert)
+- **Settings-Seite:** "Nach Updates suchen" Button
+
+#### Automatische Versionierung (Fix)
+- **Version aus package.json:** Kein manuelles Update mehr nötig
+  - `src/config/site.ts` liest Version automatisch aus package.json
+  - Single Source of Truth für Versionsnummer
+  - Info-Seite zeigt immer korrekte Version
+
+### 🚀 Performance-Verbesserungen
+
+#### Fallback Lazy Loading (PERF-01)
+- **Bundle-Size-Optimierung:** -49KB ungezipped (~12KB gzipped)
+  - `generated-fallback.ts` wird nur bei Bedarf geladen
+  - Vite erstellt automatisch separaten Chunk
+  - Schnellerer Initial Load für 99% der Nutzer
+
+#### Gesamte Performance-Verbesserungen
+- **-72KB** weniger Initial Load (49KB Fallback + 23KB optionale Daten)
+- **-30%** weniger Network Requests beim App-Start
+- **Lazy Loading** für nicht-kritische Features
+
+### 🧪 Test-Verbesserungen
+
+- **141 Tests** total (135 → 141, +6 neue)
+- **6 neue Tests** für useKfzCodeDetails Hook
+- **Alle Tests bestehen** in CI/CD Pipeline
+
+### 🔧 Fixes
+
+#### CI/CD Pipeline (CI-01)
+- **GitHub Actions:** Verwendet jetzt `npm test` statt `bun test`
+  - Problem: bun's eigener Test-Runner hatte kein fake-indexeddb
+  - 53 Tests schlugen fehl in CI (lokal liefen alle durch)
+  - Lösung: `.github/workflows/ci.yml` nutzt jetzt `npm test`
+
+### 📦 Technische Änderungen
+
+#### Neue Dateien
+- `src/hooks/useKfzCodeDetails.ts` - Lazy loading hook
+- `src/hooks/useKfzCodeDetails.test.ts` - 6 comprehensive tests
+
+#### Geänderte Dateien
+- `src/hooks/useKfzData.ts` - seats & codeDetails entfernt (jetzt on-demand)
+- `src/pages/Index.tsx` - useKfzCodeDetails() Hook hinzugefügt
+- `src/pages/Quiz.tsx` - useKfzCodeDetails() Hook hinzugefügt
+- `src/config/site.ts` - Version aus package.json gelesen
+- `vite.config.ts` - PWA registerType: "prompt", skipWaiting: false
+- `.github/workflows/ci.yml` - npm test statt bun test
+
+### 🎯 Abgeschlossene TODOs (CONSOLIDATED_TODO.md)
+
+- **CI-01:** GitHub Actions Test-Runner Fix ✅
+- **TEST-01:** Comprehensive Test Coverage (135 → 141 Tests) ✅
+- **PERF-01:** Fallback Lazy Loading (-49KB Bundle) ✅
+- **PWA-01:** User-freundlicher Update-Flow ✅
+- **PERF-02:** Optionale Daten On-Demand (-23KB) ✅
+
+**Status:** 49 Findings total (11 erledigt ✅, 38 offen)
+- 🔴 Critical: 0 offen (alle 4 erledigt!)
+- 🟠 High: 2 offen (4 von 6 erledigt)
+
+---
+
 ## [2.4.4] - 2026-01-01
 
 **🧪 Comprehensive Test Coverage for Critical Paths**
