@@ -36,7 +36,7 @@ export default defineConfig(({ mode }) => ({
       modernPolyfills: false, // Don't polyfill for modern browsers
     }),
     VitePWA({
-      registerType: "autoUpdate",
+      registerType: "prompt", // User must confirm update (not automatic)
       includeAssets: ["icons/*.png", "icons/*.svg", "data/*.json"],
       manifest: false, // Use our custom manifest.webmanifest
       devOptions: {
@@ -48,8 +48,8 @@ export default defineConfig(({ mode }) => ({
         navigateFallback: '/index.html',
         navigateFallbackAllowlist: [/^\/(?!data\/)/], // Allow all except /data/
         cleanupOutdatedCaches: true,
-        skipWaiting: true,
-        clientsClaim: true,
+        skipWaiting: false, // Wait for user confirmation before activating new SW
+        clientsClaim: false, // Don't take control immediately
         runtimeCaching: [
           {
             // SPA Navigation - always serve index.html for navigation requests
