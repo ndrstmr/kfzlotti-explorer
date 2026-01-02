@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import type { KfzIndex, KfzTopoJSON, KreissitzData, CodeDetailsData } from '@/data/schema';
+import type { KfzIndex, KfzTopoJSON } from '@/data/schema';
 import { getCachedData, setCachedData, getCacheMetadata, migrateDataSchema, getUserSettings, CACHE_KEYS } from '@/lib/storage';
 
 /**
@@ -19,8 +19,6 @@ async function loadFallbackData(): Promise<KfzIndex> {
 interface DataState {
   index: KfzIndex | null;
   topoJson: KfzTopoJSON | null;
-  seats: KreissitzData | null;
-  codeDetails: CodeDetailsData | null;
   isLoading: boolean;
   error: string | null;
   isOffline: boolean;
@@ -38,23 +36,10 @@ function isValidTopoJson(data: unknown): boolean {
   );
 }
 
-/**
- * Validates if seats data contains actual seat information
- */
-function isValidSeatsData(data: unknown): boolean {
-  return Boolean(
-    data?.seats &&
-    typeof data.seats === 'object' &&
-    Object.keys(data.seats).length > 0
-  );
-}
-
 export function useKfzData() {
   const [state, setState] = useState<DataState>({
     index: null,
     topoJson: null,
-    seats: null,
-    codeDetails: null,
     isLoading: true,
     error: null,
     isOffline: !navigator.onLine,
@@ -76,7 +61,6 @@ export function useKfzData() {
       // Try to load from cache first
       let index = await getCachedData<KfzIndex>(CACHE_KEYS.INDEX);
       let topoJson = await getCachedData<KfzTopoJSON>(CACHE_KEYS.TOPO);
-      let seats = await getCachedData<KreissitzData>(CACHE_KEYS.SEATS);
 
       // Get cache metadata for version checking
       const cachedMeta = await getCacheMetadata(CACHE_KEYS.INDEX);
@@ -135,45 +119,6 @@ export function useKfzData() {
         }
       }
 
-      // Seats are optional
-      if (!seats || (navigator.onLine && !isOfflineModeEnabled)) {
-        try {
-          const seatsResponse = await fetch('/data/seats.json');
-          if (seatsResponse.ok) {
-            const fetchedSeats = await seatsResponse.json();
-
-            // Validate seats data has actual content before caching
-            if (isValidSeatsData(fetchedSeats)) {
-              seats = fetchedSeats;
-              await setCachedData(CACHE_KEYS.SEATS, seats, {
-                ttlSeconds: 30 * 24 * 60 * 60, // 30 days
-              });
-            } else {
-              console.warn('Seats data is empty, skipping cache. District capital markers will not be available.');
-              seats = null;
-            }
-          }
-        } catch (e) {
-          console.log('Seats data not available (optional)');
-        }
-      }
-
-      // Code details are optional
-      let codeDetails = await getCachedData<CodeDetailsData>(CACHE_KEYS.CODE_DETAILS);
-      if (!codeDetails || (navigator.onLine && !isOfflineModeEnabled)) {
-        try {
-          const codeDetailsResponse = await fetch('/data/code-details.json');
-          if (codeDetailsResponse.ok) {
-            codeDetails = await codeDetailsResponse.json();
-            await setCachedData(CACHE_KEYS.CODE_DETAILS, codeDetails, {
-              ttlSeconds: 30 * 24 * 60 * 60, // 30 days
-            });
-          }
-        } catch (e) {
-          console.log('Code details not available (optional)');
-        }
-      }
-
       // Use fallback if still no index (lazy-loaded to reduce bundle size)
       if (!index) {
         console.log('Using fallback index data (lazy-loading...)');
@@ -183,8 +128,6 @@ export function useKfzData() {
       setState({
         index,
         topoJson,
-        seats,
-        codeDetails,
         isLoading: false,
         error: null,
         isOffline: !navigator.onLine,
@@ -204,8 +147,6 @@ export function useKfzData() {
       setState({
         index: fallbackIndex,
         topoJson: null,
-        seats: null,
-        codeDetails: null,
         isLoading: false,
         error: fallbackIndex
           ? 'Daten konnten nicht vollständig geladen werden. Einige Funktionen sind eingeschränkt.'

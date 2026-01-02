@@ -3,6 +3,7 @@ import { ArrowLeft, Check, X, Trophy, MapPin, Landmark, Grid3X3, AlertCircle, Ro
 import { Button } from '@/components/ui/button';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useKfzData } from '@/hooks/useKfzData';
+import { useKfzCodeDetails } from '@/hooks/useKfzCodeDetails';
 import { searchKfzCode, SearchResult } from '@/lib/search';
 import { getRandomBundeslaender, getBundeslandFromArs, getBundeslandFromShortName } from '@/data/bundeslaender';
 import { recordQuizAnswer, recordCorrectedAnswer, getUserProgress } from '@/lib/storage';
@@ -43,7 +44,8 @@ const Quiz = () => {
   const [searchParams] = useSearchParams();
   const initialMode = searchParams.get('mode') === 'errors' ? 'errors' : 'normal';
 
-  const { index, codeDetails, isLoading } = useKfzData();
+  const { index, isLoading } = useKfzData();
+  const { codeDetails } = useKfzCodeDetails(); // Lazy-loaded on-demand
   const { settings } = useSettings();
   const [mode, setMode] = useState<QuizMode>(initialMode);
   const [question, setQuestion] = useState<QuizQuestion | null>(null);

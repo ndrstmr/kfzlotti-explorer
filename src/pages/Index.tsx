@@ -3,6 +3,7 @@ import { Search, HelpCircle, Info, Wifi, WifiOff, Settings, AlertTriangle } from
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useKfzData } from '@/hooks/useKfzData';
+import { useKfzCodeDetails } from '@/hooks/useKfzCodeDetails';
 import { searchKfzCode, type SearchResult } from '@/lib/search';
 import { normalizeKfzCode } from '@/lib/normalize';
 import { recordSearch } from '@/lib/storage';
@@ -18,7 +19,8 @@ const Index = () => {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
   const { settings: userSettings } = useSettings();
-  const { index, codeDetails, isLoading, error } = useKfzData();
+  const { index, isLoading, error } = useKfzData();
+  const { codeDetails } = useKfzCodeDetails(); // Lazy-loaded on-demand
   const isOnline = useOnlineStatus();
 
   // Search when query changes
