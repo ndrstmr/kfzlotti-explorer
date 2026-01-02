@@ -7,9 +7,14 @@ import { useState, useEffect, useCallback } from 'react';
 import type { KfzIndex, KfzTopoJSON, KreissitzData, CodeDetailsData } from '@/data/schema';
 import { getCachedData, setCachedData, getCacheMetadata, migrateDataSchema, getUserSettings, CACHE_KEYS } from '@/lib/storage';
 
-// Embedded fallback data for offline-first experience
-// This contains ALL districts (generated at build time)
-import { GENERATED_FALLBACK } from '@/data/generated-fallback';
+/**
+ * Lazy-loads fallback data only when needed
+ * Reduces main bundle size by ~100KB
+ */
+async function loadFallbackData(): Promise<KfzIndex> {
+  const { GENERATED_FALLBACK } = await import('@/data/generated-fallback');
+  return GENERATED_FALLBACK;
+}
 
 interface DataState {
   index: KfzIndex | null;
@@ -169,10 +174,10 @@ export function useKfzData() {
         }
       }
 
-      // Use fallback if still no index
+      // Use fallback if still no index (lazy-loaded to reduce bundle size)
       if (!index) {
-        console.log('Using fallback index data');
-        index = GENERATED_FALLBACK;
+        console.log('Using fallback index data (lazy-loading...)');
+        index = await loadFallbackData();
       }
 
       setState({
@@ -188,14 +193,23 @@ export function useKfzData() {
     } catch (error) {
       console.error('Error loading KFZ data:', error);
 
-      // Try fallback
+      // Try fallback (lazy-loaded to reduce bundle size)
+      let fallbackIndex: KfzIndex | null = null;
+      try {
+        fallbackIndex = await loadFallbackData();
+      } catch (fallbackError) {
+        console.error('Failed to load fallback data:', fallbackError);
+      }
+
       setState({
-        index: GENERATED_FALLBACK,
+        index: fallbackIndex,
         topoJson: null,
         seats: null,
         codeDetails: null,
         isLoading: false,
-        error: 'Daten konnten nicht vollständig geladen werden. Einige Funktionen sind eingeschränkt.',
+        error: fallbackIndex
+          ? 'Daten konnten nicht vollständig geladen werden. Einige Funktionen sind eingeschränkt.'
+          : 'Kritischer Fehler: Keine Daten verfügbar. Bitte App neu laden.',
         isOffline: !navigator.onLine,
         mapAvailable: false,
       });
