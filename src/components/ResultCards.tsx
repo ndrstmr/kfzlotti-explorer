@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/tooltip';
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogHeader,
@@ -183,12 +184,13 @@ const ResultCards = ({ results, codeDetails }: ResultCardsProps) => {
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <Button
+          <AlertDialogAction
             onClick={() => setSelectedBadge(null)}
             className="mt-4"
+            autoFocus
           >
             Schließen
-          </Button>
+          </AlertDialogAction>
         </AlertDialogContent>
       </AlertDialog>
     </TooltipProvider>

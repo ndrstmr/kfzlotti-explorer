@@ -3,9 +3,10 @@
  * Handles fetching and caching of KFZ data
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { KfzIndex, KfzTopoJSON } from '@/data/schema';
 import { getCachedData, setCachedData, getCacheMetadata, migrateDataSchema, getUserSettings, CACHE_KEYS } from '@/lib/storage';
+import { toast } from '@/hooks/use-toast';
 
 /**
  * Lazy-loads fallback data only when needed
@@ -45,6 +46,8 @@ export function useKfzData() {
     isOffline: !navigator.onLine,
     mapAvailable: false,
   });
+
+  const hasShownOfflineToast = useRef(false);
 
   const loadData = useCallback(async () => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
@@ -159,6 +162,16 @@ export function useKfzData() {
 
   useEffect(() => {
     loadData();
+
+    // Show toast if app starts offline
+    if (!navigator.onLine && !hasShownOfflineToast.current) {
+      hasShownOfflineToast.current = true;
+      toast({
+        title: 'Offline-Modus',
+        description: 'Die App verwendet gespeicherte Daten. Alle Funktionen sind verfügbar!',
+        duration: 4000,
+      });
+    }
 
     // Listen for online/offline events
     const handleOnline = () => {

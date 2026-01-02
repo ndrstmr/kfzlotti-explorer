@@ -144,7 +144,12 @@ const Index = () => {
 
         {/* Results */}
         {!isLoading && results.length > 0 && (
-          <ResultCards results={results} codeDetails={codeDetails} />
+          <>
+            <div aria-live="polite" aria-atomic="true" className="sr-only">
+              {results.length} {results.length === 1 ? 'Ergebnis' : 'Ergebnisse'} gefunden
+            </div>
+            <ResultCards results={results} codeDetails={codeDetails} />
+          </>
         )}
 
         {/* No Results */}
@@ -179,6 +184,7 @@ const Index = () => {
                   variant="outline"
                   className="rounded-xl font-display font-bold text-lg px-4 py-2 border-2 hover:border-primary hover:bg-primary/10 transition-all"
                   onClick={() => setQuery(code)}
+                  aria-label={`Kennzeichen ${code} suchen`}
                 >
                   {code}
                 </Button>

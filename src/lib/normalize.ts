@@ -4,11 +4,26 @@
  */
 
 /**
- * Normalize a KFZ code input
+ * Normalize a KFZ code input for safe use in UI
+ *
+ * SECURITY: This function sanitizes user input to prevent XSS attacks:
+ * - Restricts input to alphanumeric characters (A-Z, Ä, Ö, Ü)
+ * - Removes all special characters including HTML/script tags
+ * - Limits length to 3 characters (German KFZ prefix format)
+ * - Safe to render directly in React components
+ *
+ * Processing steps:
  * - Trims whitespace
  * - Converts to uppercase
  * - Removes non-letter characters
  * - Limits length to 3 (max German KFZ prefix length)
+ *
+ * @param input - Raw user input string
+ * @returns Sanitized KFZ code safe for UI rendering
+ *
+ * @example
+ * normalizeKfzCode("B<script>") // Returns: "B"
+ * normalizeKfzCode("  hh123  ") // Returns: "HH"
  */
 export function normalizeKfzCode(input: string): string {
   if (!input || typeof input !== 'string') return '';

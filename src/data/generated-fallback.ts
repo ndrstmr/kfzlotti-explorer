@@ -1,7 +1,7 @@
 /**
  * Auto-generated comprehensive fallback data
- * Generated: 2026-01-02T21:50:58.646Z
- * Data version: 2026-01-02T21-50-58
+ * Generated: 2026-01-02T22:01:18.541Z
+ * Data version: 2026-01-02T22-01-18
  *
  * DO NOT EDIT MANUALLY - Regenerated on each build via scripts/generate-fallback.ts
  *
@@ -6479,6 +6479,6 @@ export const GENERATED_FALLBACK: KfzIndex = {
       ]
     }
   },
-  "dataVersion": "2026-01-02T21-50-58",
+  "dataVersion": "2026-01-02T22-01-18",
   "buildHash": "466605c3"
 };
