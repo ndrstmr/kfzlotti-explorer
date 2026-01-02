@@ -31,7 +31,7 @@ jobs:
         run: bun run lint
 
       - name: Run tests
-        run: bun test --run
+        run: npm test
 
       - name: Build project
         run: bun run build
