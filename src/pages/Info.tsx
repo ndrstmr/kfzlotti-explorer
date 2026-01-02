@@ -155,9 +155,16 @@ const Info = () => {
               <span>100% Open Source</span>
             </li>
           </ul>
-          <div className="p-3 bg-muted rounded-xl">
+          <div className="p-3 bg-muted rounded-xl space-y-2">
             <p className="text-xs text-muted-foreground">
-              Diese App erhebt, speichert und überträgt keine personenbezogenen Daten. 
+              Diese App erhebt, speichert und überträgt keine personenbezogenen Daten an Server.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              <strong>Lokale Speicherung:</strong> Dein Quiz-Fortschritt, Badges und Einstellungen
+              werden in der Browser-Datenbank (IndexedDB) gespeichert. Diese Daten verlassen nie dein Gerät
+              und können jederzeit in den Einstellungen gelöscht werden.
+            </p>
+            <p className="text-xs text-muted-foreground">
               Die optionale Standortabfrage erfolgt ausschließlich lokal auf deinem Gerät.
             </p>
           </div>

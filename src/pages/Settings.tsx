@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, User, Moon, Sun, Monitor, RotateCcw, Trash2, Trophy, AlertTriangle, RefreshCw, Loader2, WifiOff, Map, XCircle } from 'lucide-react';
+import { ArrowLeft, User, Moon, Sun, Monitor, RotateCcw, Trash2, Trophy, AlertTriangle, RefreshCw, Loader2, WifiOff, Map, XCircle, Database } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -344,6 +344,30 @@ const Settings = () => {
             </AlertDialog>
           </section>
         )}
+
+        {/* Data Storage Info */}
+        <section className="bg-card rounded-2xl p-6 shadow-card space-y-4">
+          <h2 className="text-lg font-display font-bold flex items-center gap-2">
+            <Database className="w-5 h-5 text-primary" />
+            Datenspeicherung
+          </h2>
+          <div className="space-y-3 text-sm text-muted-foreground">
+            <p>
+              Deine Daten werden ausschließlich <strong>lokal auf deinem Gerät</strong> gespeichert
+              (Browser IndexedDB). Es werden keine Daten an Server übertragen.
+            </p>
+            <div className="p-3 bg-muted rounded-xl space-y-2">
+              <p className="font-medium text-foreground">Gespeicherte Daten:</p>
+              <ul className="text-xs space-y-1">
+                <li>• Quiz-Fortschritt und Statistiken</li>
+                <li>• Verdiente Badges und Erfolge</li>
+                <li>• Suchhistorie (besuchte Kennzeichen)</li>
+                <li>• Einstellungen (Name, Theme, Offline-Modus)</li>
+                <li>• App-Daten (KFZ-Index, Karten-Geodaten)</li>
+              </ul>
+            </div>
+          </div>
+        </section>
 
         {/* Danger Zone */}
         <section className="bg-card rounded-2xl p-6 shadow-card space-y-4 border-2 border-destructive/20">
