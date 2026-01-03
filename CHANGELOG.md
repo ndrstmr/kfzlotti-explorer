@@ -7,6 +7,119 @@ und dieses Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [2.5.0] - 2026-01-03
+
+**🏗️ Architektur-Refactoring: TanStack Query Migration (ARCH-02)**
+
+Major Refactoring des Data-Loading-Systems von manuellem State-Management zu TanStack Query.
+
+### ♻️ Refactoring
+
+#### God-Hook Pattern aufgelöst (ARCH-02)
+- **useKfzData.ts:** 199 → 127 Zeilen (-72 Zeilen, -36%)
+  - Von monolithischem "God Hook" zu schlanker Facade
+  - Nutzt useKfzIndex + useTopoJson intern
+  - 10+ Verantwortlichkeiten → Separation of Concerns
+  - Vollständig backward-kompatibel (keine Breaking Changes)
+
+#### Neue TanStack Query Hooks
+- **useKfzIndex.ts** (105 Zeilen)
+  - TanStack Query Hook für KFZ-Index Daten
+  - 5-stufige Ladestrategie: Migration → Settings → Cache → Network → Fallback
+  - Version-basierte Cache-Invalidierung
+  - Offline-First Konfiguration (30 Tage staleTime, infinite gcTime)
+  - **6 umfassende Tests** (Cache, Fetch, Fallback, Offline, Error-Handling)
+
+- **useTopoJson.ts** (90 Zeilen)
+  - TanStack Query Hook für TopoJSON Geodaten
+  - Vereinfachte Strategie (keine Versionierung, Map ist optional)
+  - Offline-First Konfiguration (7 Tage staleTime)
+  - **6 umfassende Tests** (Cache, Fetch, Null-Handling, Offline, Errors)
+
+#### Utility Functions extrahiert
+- **data-validators.ts** (67 Zeilen)
+  - `isValidTopoJson()` - Validiert TopoJSON Struktur
+  - `isValidIndex()` - Validiert KfzIndex Struktur
+  - Type-safe mit TypeScript type predicates
+  - **13 Tests** (Edge Cases, invalide Strukturen)
+
+- **data-loaders.ts** (105 Zeilen)
+  - `loadFallbackData()` - Lazy-loads Fallback-Index
+  - `loadIndexData()` - Fetch + Validierung für Index
+  - `loadTopoData()` - Fetch + Validierung für TopoJSON
+  - Separation of Concerns: Fetching getrennt von State-Management
+  - **10 Tests** (Successful Loads, Error-Handling, Validation)
+
+### 🎯 Vorteile der Migration
+
+**Performance:**
+- Automatisches Caching durch TanStack Query
+- Optimierte Refetch-Strategien
+- Lazy Loading für Fallback-Daten bleibt erhalten
+
+**Code-Qualität:**
+- -72 Zeilen in useKfzData (-36% Code-Reduktion)
+- Testbarkeit massiv verbessert (von 0 auf 35 Hook-Tests)
+- Separation of Concerns (Validators, Loaders, Hooks, Facade)
+- Keine God-Hook Anti-Pattern mehr
+
+**Developer Experience:**
+- TanStack Query DevTools Support
+- Bessere Error-Handling
+- Automatic Refetching bei Reconnect
+- Klare Hook-Verantwortlichkeiten
+
+**Backward Compatibility:**
+- useKfzData Interface unverändert
+- Alle 4 Komponenten (Index, Quiz, Settings, BattleQuiz) funktionieren ohne Änderungen
+- Keine Breaking Changes für bestehenden Code
+
+### 🧪 Testing
+
+**Neue Tests:**
+- **35 Hook-Tests** (useKfzIndex: 6, useTopoJson: 6, validators: 13, loaders: 10)
+- **Gesamt:** 135+ Tests (vorher ~100)
+- **Coverage:** Data-Loading komplett getestet
+
+**Test-Kategorien:**
+- Cache Loading & Validation
+- Fresh Data Fetching
+- Offline Mode Handling
+- Error Handling & Fallbacks
+- Version-Based Invalidation
+- Edge Cases & Invalid Data
+
+### 📝 Dokumentation
+
+**CLAUDE.md aktualisiert** (lokal):
+- TanStack Query Architektur dokumentiert
+- Neue Hooks (useKfzIndex, useTopoJson) hinzugefügt
+- Build-Zeit Transformation dokumentiert
+- Facade Pattern für useKfzData
+- Testing-Sektion erweitert (automatisierte Tests)
+
+### 🔧 Technische Details
+
+**Stack:**
+- TanStack Query v5.83.0 (bereits installiert, jetzt genutzt)
+- Vitest für Hook-Testing mit QueryClientProvider
+- React Testing Library für renderHook
+
+**Architektur-Muster:**
+- Facade Pattern (useKfzData)
+- Separation of Concerns (Validators, Loaders, Hooks)
+- Type-Safe Validators (TypeScript type predicates)
+- Query-First Loading Strategy
+
+### 🎉 Commits
+
+- `9afd4ed` - refactor(arch-02): Extract utility functions (ARCH-02.1)
+- `a5db174` - refactor(arch-02): Implement useKfzIndex hook (ARCH-02.2)
+- `f5d9942` - refactor(arch-02): Implement useTopoJson hook (ARCH-02.3)
+- `f37a3d7` - refactor(arch-02): Refactor useKfzData as facade (ARCH-02.4)
+
+---
+
 ## [2.4.5] - 2026-01-02
 
 **⚡ Performance-Optimierung & PWA-Verbesserungen**
